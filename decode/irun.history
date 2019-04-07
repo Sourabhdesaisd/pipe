@@ -1,0 +1,4 @@
+s1(08Apr2019:03:59:23):  irun -access +rwc decode_controller.v 
+s2(08Apr2019:03:59:42):  irun -access +rwc decode_imm.v 
+s3(08Apr2019:04:00:56):  irun -access +rwc decode_imm.v 
+s4(08Apr2019:04:01:00):  irun -access +rwc decode_controller.v 
