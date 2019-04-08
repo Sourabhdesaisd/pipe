@@ -1,0 +1,13 @@
+//
+// File created by:  irun
+// Do not modify this file
+//
+-access
++rwc
+alu_top.v
+comparator.v
+logical.v
+ripple_adder.v
+shift.v
+pc_jump.v
+alu_mux.v

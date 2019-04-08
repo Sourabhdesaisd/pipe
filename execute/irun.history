@@ -1,0 +1,10 @@
+s1(08Apr2019:08:17:29):  irun -access +rwc alu_top.v comparator.v logical.v pc_jump.v ripple_adder.v 
+s2(08Apr2019:08:17:42):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v 
+s3(08Apr2019:08:18:25):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v 
+s4(08Apr2019:08:19:35):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v 
+s5(08Apr2019:08:19:46):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v pc_jump.v 
+s6(08Apr2019:08:29:26):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v pc_jump.v alu_mux.v 
+s7(08Apr2019:08:31:04):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v pc_jump.v alu_mux.v 
+s8(08Apr2019:08:31:34):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v pc_jump.v alu_mux.v 
+s9(08Apr2019:08:31:59):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v pc_jump.v alu_mux.v 
+s10(08Apr2019:08:32:16):  irun -access +rwc alu_top.v comparator.v logical.v ripple_adder.v shift.v pc_jump.v alu_mux.v 
