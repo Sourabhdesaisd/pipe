@@ -1,5 +1,5 @@
 irun(64): 15.20-s051: (c) Copyright 1995-2018 Cadence Design Systems, Inc.
-TOOL:	irun(64)	15.20-s051: Started on Apr 08, 2019 at 07:03:45 IST
+TOOL:	irun(64)	15.20-s051: Started on Apr 09, 2019 at 03:58:58 IST
 irun
 	-sv
 	+rwc
@@ -33,9 +33,6 @@ irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-Recompiling... reason: file './decode_controller.v' is newer than expected.
-	expected: Mon Apr  8 07:00:52 2019
-	actual:   Mon Apr  8 07:03:44 2019
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
@@ -154,4 +151,4 @@ ALL TESTS PASSED
 Simulation complete via $finish(1) at time 37 NS + 0
 ./tb_dc.v:392         $finish;
 ncsim> exit
-TOOL:	irun(64)	15.20-s051: Exiting on Apr 08, 2019 at 07:03:45 IST  (total: 00:00:00)
+TOOL:	irun(64)	15.20-s051: Exiting on Apr 09, 2019 at 03:58:58 IST  (total: 00:00:00)

@@ -118,7 +118,7 @@ module simple_alu (
     shifter_unit32 sh_u (.rs1(rs1), .rs2(rs2_final), .opcode(opcode), .func3(func3), .func7(func7), .imm_out(imm_out), .Y(shift_res));
 
     // Final ALU result
-    always @(*) begin
+  /*  always @(*) begin
         case (alu_ctrl)
             `ALU_ADD:  result_alu = add_res;
             `ALU_SUB:  result_alu = add_res;
@@ -132,7 +132,7 @@ module simple_alu (
             `ALU_SRA:  result_alu = shift_res;
             default:   result_alu = add_res;
         endcase
-    end
+    end */
 
     assign carry_flag    = add_c;
     assign zero_flag     = add_z;
