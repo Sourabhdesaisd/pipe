@@ -5,4 +5,6 @@
 -sv
 +rwc
 decode_controller.v
-tb_dc.v
+decode_imm.v
+top_decode.v
+register_file.v

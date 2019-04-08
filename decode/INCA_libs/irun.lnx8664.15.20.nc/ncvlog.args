@@ -7,7 +7,9 @@
 -RUNMODE
 -sv
 decode_controller.v
-tb_dc.v
+decode_imm.v
+top_decode.v
+register_file.v
 -CDSLIB
 ./INCA_libs/irun.lnx8664.15.20.nc/cdsrun.lib
 -HDLVAR

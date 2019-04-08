@@ -1,10 +1,12 @@
 irun(64): 15.20-s051: (c) Copyright 1995-2018 Cadence Design Systems, Inc.
-TOOL:	irun(64)	15.20-s051: Started on Apr 09, 2019 at 03:58:58 IST
+TOOL:	irun(64)	15.20-s051: Started on Apr 09, 2019 at 04:10:40 IST
 irun
 	-sv
 	+rwc
 	decode_controller.v
-	tb_dc.v
+	decode_imm.v
+	top_decode.v
+	register_file.v
 
    User defined plus("+") options:
 	+rwc
@@ -39,14 +41,23 @@ irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+Recompiling... reason: file './decode_imm.v' is newer than expected.
+	expected: Mon Apr  8 04:00:42 2019
+	actual:   Tue Apr  9 03:58:25 2019
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-file: decode_controller.v
-	module worklib.decode_controller_pipelined:v
+file: top_decode.v
+	module worklib.tb_simple_passfail:v
 		errors: 0, warnings: 0
 	Total errors/warnings found outside modules and primitives:
 		errors: 0, warnings: 2
@@ -71,7 +82,7 @@ ncelab: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/ho
 		Caching library 'worklib' ....... Done
 	Elaborating the design hierarchy:
 	Top level design units:
-		tb_decode_controller_pipelined
+		tb_simple_passfail
 ncelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
 	Building instance overlay tables: .................... Done
 	Generating native compiled code:
@@ -83,72 +94,64 @@ DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 ncvlog_cg: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
 		worklib.decode_controller_pipelined:v <0x5f1fc2a5>
 			streams:   2, words:  7182
+		worklib.decode_unit:v <0x7a27a00e>
+			streams:   2, words:   758
+		worklib.register_file:v <0x0dcafddf>
+			streams:   5, words:  1937
+		worklib.tb_simple_passfail:v <0x7432968f>
+			streams:  14, words: 18743
+		worklib.top_decode:v <0x439e5523>
+			streams:   0, words:     0
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
-		              Instances  Unique
-		Modules:              2       2
-		Registers:           33      33
-		Scalar wires:        19       -
-		Vectored wires:       6       -
-		Always blocks:        1       1
-		Initial blocks:       4       4
-		Cont. assignments:    1       9
-		Pseudo assignments:   3       3
-	Writing initial simulation snapshot: worklib.tb_decode_controller_pipelined:v
+		             Instances  Unique
+		Modules:             5       5
+		Registers:          60      60
+		Scalar wires:       34       -
+		Vectored wires:     27       -
+		Always blocks:       4       4
+		Initial blocks:      7       7
+		Cont. assignments:   5      40
+	Writing initial simulation snapshot: worklib.tb_simple_passfail:v
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 ncsim: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 ncsim: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-Loading snapshot worklib.tb_decode_controller_pipelined:v .................... Done
+Loading snapshot worklib.tb_simple_passfail:v .................... Done
 ncsim: *W,DSEM2009: This SystemVerilog design is simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
 ncsim> source /tools/cadence/INCISIVE152/tools/inca/files/ncsimrc
 ncsim> run
+ncsim: *W,RMEMNOF: $readmem error: open failed on file "reg_mem.hex".
+            File: ./register_file.v, line = 19, pos = 40
+           Scope: tb_simple_passfail.dut.u_regfile
+            Time: 0 FS + 0
 
-=== decode_controller_pipelined testbench ===
+ncsim: *W,DVEXACC: some objects excluded from $dumpvars due to access restrictions, use +access+r on command line for access to all objects.
+            File: ./top_decode.v, line = 425, pos = 16
+           Scope: tb_simple_passfail
+            Time: 0 FS + 0
 
-  1 PASS : R - ADD  (opc=0110011 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  2 PASS : R - SUB  (opc=0110011 f3=000 f7=0100000) -> alu_ctrl=01, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  3 PASS : R - XOR  (opc=0110011 f3=100 f7=0000000) -> alu_ctrl=04, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  4 PASS : R - OR  (opc=0110011 f3=110 f7=0000000) -> alu_ctrl=03, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  5 PASS : R - AND  (opc=0110011 f3=111 f7=0000000) -> alu_ctrl=02, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  6 PASS : R - SLL  (opc=0110011 f3=001 f7=0000000) -> alu_ctrl=05, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  7 PASS : R - SRL  (opc=0110011 f3=101 f7=0000000) -> alu_ctrl=06, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  8 PASS : R - SRA  (opc=0110011 f3=101 f7=0100000) -> alu_ctrl=07, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
-  9 PASS : R - SLT  (opc=0110011 f3=010 f7=0000000) -> alu_ctrl=08, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 10 PASS : R - SLTU  (opc=0110011 f3=011 f7=0000000) -> alu_ctrl=09, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 11 PASS : I - ADDI  (opc=0010011 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 12 PASS : I - XORI  (opc=0010011 f3=100 f7=0000000) -> alu_ctrl=04, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 13 PASS : I - ORI  (opc=0010011 f3=110 f7=0000000) -> alu_ctrl=03, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 14 PASS : I - ANDI  (opc=0010011 f3=111 f7=0000000) -> alu_ctrl=02, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 15 PASS : I - SLTI  (opc=0010011 f3=010 f7=0000000) -> alu_ctrl=08, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 16 PASS : I - SLTIU  (opc=0010011 f3=011 f7=0000000) -> alu_ctrl=09, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 17 PASS : I - SLLI  (opc=0010011 f3=001 f7=0000000) -> alu_ctrl=05, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 18 PASS : I - SRLI  (opc=0010011 f3=101 f7=0000000) -> alu_ctrl=06, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 19 PASS : I - SRAI  (opc=0010011 f3=101 f7=0100000) -> alu_ctrl=07, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 20 PASS : LD - LB  (opc=0000011 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=1 memW=0 loadType=000 storeType=11 wb=1 memtoreg=1 br=0 jal=0 jalr=0 auipc=0 lui=0
- 21 PASS : LD - LH  (opc=0000011 f3=001 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=1 memW=0 loadType=001 storeType=11 wb=1 memtoreg=1 br=0 jal=0 jalr=0 auipc=0 lui=0
- 22 PASS : LD - LW  (opc=0000011 f3=010 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=1 memW=0 loadType=010 storeType=11 wb=1 memtoreg=1 br=0 jal=0 jalr=0 auipc=0 lui=0
- 23 PASS : LD - LBU  (opc=0000011 f3=100 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=1 memW=0 loadType=011 storeType=11 wb=1 memtoreg=1 br=0 jal=0 jalr=0 auipc=0 lui=0
- 24 PASS : LD - LHU  (opc=0000011 f3=101 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=1 memW=0 loadType=100 storeType=11 wb=1 memtoreg=1 br=0 jal=0 jalr=0 auipc=0 lui=0
- 25 PASS : ST - SB  (opc=0100011 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=0 memW=1 loadType=111 storeType=00 wb=0 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 26 PASS : ST - SH  (opc=0100011 f3=001 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=0 memW=1 loadType=111 storeType=01 wb=0 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 27 PASS : ST - SW  (opc=0100011 f3=010 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=0 memW=1 loadType=111 storeType=10 wb=0 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=0
- 28 PASS : BR - BEQ  (opc=1100011 f3=000 f7=0000000) -> alu_ctrl=01, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=0 memtoreg=0 br=1 jal=0 jalr=0 auipc=0 lui=0
- 29 PASS : BR - BNE  (opc=1100011 f3=001 f7=0000000) -> alu_ctrl=01, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=0 memtoreg=0 br=1 jal=0 jalr=0 auipc=0 lui=0
- 30 PASS : BR - BLT  (opc=1100011 f3=100 f7=0000000) -> alu_ctrl=01, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=0 memtoreg=0 br=1 jal=0 jalr=0 auipc=0 lui=0
- 31 PASS : BR - BGE  (opc=1100011 f3=101 f7=0000000) -> alu_ctrl=01, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=0 memtoreg=0 br=1 jal=0 jalr=0 auipc=0 lui=0
- 32 PASS : J - JAL  (opc=1101111 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=1 jalr=0 auipc=0 lui=0
- 33 PASS : J - JALR  (opc=1100111 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=1, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=1 auipc=0 lui=0
- 34 PASS : U - LUI  (opc=0110111 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=0 lui=1
- 35 PASS : U - AUIPC  (opc=0010111 f3=000 f7=0000000) -> alu_ctrl=00, ex_alu_src=0, memR=0 memW=0 loadType=111 storeType=11 wb=1 memtoreg=0 br=0 jal=0 jalr=0 auipc=1 lui=0
+Test 1 PASS: R-type ADD (wb_reg=1, ex_alu_src=0, alu=ADD)
+Test 2 PASS: R-type SUB (alu=SUB, wb_reg=1)
+Test 3 PASS: R-type SLL (alu=SLL)
+Test 4 PASS: I-type ADDI (ex_alu_src=1, wb_reg=1, alu=ADD)
+Test 5 PASS: I-type SRLI (ex_alu_src=1, alu=SRL)
+Test 6 PASS: LW (mem_read=1, memtoreg=1, load_type=LW, ex_alu_src=1)
+Test 7 PASS: SW (mem_write=1, store_type=SW)
+Test 8 PASS: BEQ (branch=1, alu=SUB)
+Test 9 PASS: JAL (jal=1, wb_reg=1)
+Test 10 PASS: JALR (jalr=1, ex_alu_src=1, wb_reg=1)
+Test 11 PASS: LUI (lui=1, wb_reg=1)
+Test 12 PASS: AUIPC (auipc=1, wb_reg=1)
+Test 13 PASS: Forwarding: read rs1==x5 after WB (rs1_data==DEADBEEF)
 
-Test summary: passed = 35, failed = 0 (total = 35)
-
-ALL TESTS PASSED
-Simulation complete via $finish(1) at time 37 NS + 0
-./tb_dc.v:392         $finish;
+=== TESTSUMMARY ===
+Total tests: 13  Passed: 13  Failed: 0
+ALL TESTS PASSED.
+Simulation complete via $finish(1) at time 149 NS + 0
+./top_decode.v:419         $finish;
 ncsim> exit
-TOOL:	irun(64)	15.20-s051: Exiting on Apr 09, 2019 at 03:58:58 IST  (total: 00:00:00)
+TOOL:	irun(64)	15.20-s051: Exiting on Apr 09, 2019 at 04:10:40 IST  (total: 00:00:00)

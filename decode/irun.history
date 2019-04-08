@@ -50,3 +50,8 @@ s49(09Apr2019:03:56:51):  irun -access +rwc decode_controller.v tb_dc.v
 s50(09Apr2019:03:57:06):  irun -access +rwc decode_imm.v tb_di.v 
 s51(09Apr2019:03:57:17):  irun -access +rwc decode_controller.v tb_dc.v 
 s52(09Apr2019:03:58:58):  irun -sv +rwc decode_controller.v tb_dc.v 
+s53(09Apr2019:04:08:14):  irun -access +rwc decode_controller.v decode_imm.v top_decode.v 
+s54(09Apr2019:04:08:31):  irun -sv +rwc decode_controller.v decode_imm.v top_decode.v 
+s55(09Apr2019:04:09:42):  irun -sv +rwc decode_controller.v decode_imm.v top_decode.v 
+s56(09Apr2019:04:10:02):  irun -sv +rwc decode_controller.v decode_imm.v top_decode.v register_file.v 
+s57(09Apr2019:04:10:40):  irun -sv +rwc decode_controller.v decode_imm.v top_decode.v register_file.v 
