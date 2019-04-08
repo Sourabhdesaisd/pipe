@@ -2,6 +2,7 @@
 // File created by:  irun
 // Do not modify this file
 //
--access
+-sv
 +rwc
 decode_controller.v
+tb_dc.v

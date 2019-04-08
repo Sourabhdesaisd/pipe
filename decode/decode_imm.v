@@ -1,3 +1,6 @@
+
+// Minimal useful defines (you can remove/replace if you already have these)
+`define ZERO_12    12'h000
 // OPCODES
 `define OPCODE_RTYPE 7'b0110011
 `define OPCODE_ITYPE 7'b0010011
@@ -61,60 +64,79 @@
 `define WEAK_NOT_TAKEN   2'b01
 `define STRONG_TAKEN     2'b10
 `define WEAK_TAKEN       2'b11
-
-module decode_stage(
-    input clk,
-    input rst,
-    input id_flush,
-    input [31:0] instruction_in,
-    input reg_file_wr_en,
-    input [4:0] reg_file_wr_addr,
-    input [31:0] reg_file_wr_data,
-    
-    output [31:0] op1,
-    output [31:0] op2,
-    output [4:0] rs1,
-    output [4:0] rs2,
-    output [4:0] rd,
-    output reg [31:0] immediate,
-    output [6:0] opcode,
-    output alu_src,
-    output invalid_inst,
-    output [6:0] func7,
-    output [2:0] func3,
-    output mem_write,
-    output mem_read,
-    output [2:0] mem_load_type,
-    output[1:0] mem_store_type,
-    output wb_reg_file
+module decode_unit (
+    input  wire [31:0] instruction_in,
+    input  wire        id_flush,        // when asserted, treat instruction as NOP (all zeros)
+    output wire [6:0]  opcode,
+    output wire [2:0]  func3,
+    output wire [6:0]  func7,
+    output wire [4:0]  rd,
+    output wire [4:0]  rs1,
+    output wire [4:0]  rs2,
+    output reg  [31:0] imm_out          // decoded immediate (sign-extended where applicable)
 );
-    wire [31:0] instruction;
 
-    assign instruction = id_flush ? 32'h00000000 : instruction_in;
+    // Select either real instruction or zero when flushed
+    wire [31:0] instr = id_flush ? 32'h00000000 : instruction_in;
 
-    assign opcode = instruction[6:0];
-    assign rd = instruction[11:7];
-    assign rs1 = instruction[19:15];
-    assign rs2 = instruction[24:20];
-    assign func7 = instruction[31:25];
-    assign func3 = instruction[14:12];
+    // Field extraction (combinational)
+    assign opcode = instr[6:0];
+    assign rd     = instr[11:7];
+    assign func3  = instr[14:12];
+    assign rs1    = instr[19:15];
+    assign rs2    = instr[24:20];
+    assign func7  = instr[31:25];
 
+    // Immediate generation
     always @(*) begin
         case (opcode)
-            `OPCODE_STYPE: 
-                immediate = {{20{instruction[31]}},instruction[31:25],instruction[11:7]}; 
-            `OPCODE_JTYPE: 
-                immediate = {{11{instruction[31]}},instruction[31],instruction[19:12],instruction[20],instruction[30:21],1'b0};
-            `OPCODE_BTYPE: 
-                immediate = {{19{instruction[31]}},instruction[31],instruction[7],instruction[30:25],instruction[11:8],1'b0};
-            `OPCODE_UTYPE: 
-                immediate = {instruction[31:12],`ZERO_12BIT};
-            `OPCODE_AUIPC: 
-                immediate = {instruction[31:12],`ZERO_12BIT};
-            `OPCODE_ITYPE:       
-                immediate = {{20{instruction[31]}},instruction[31:20]};
-              default: immediate =0 ;
+            // I-type (includes arithmetic immediates) and loads (I-format)
+            `OPCODE_ITYPE, `OPCODE_ILOAD: begin
+                // instr[31:20] sign-extended to 32 bits
+                imm_out = {{20{instr[31]}}, instr[31:20]};
+            end
+
+            // S-type (store): imm[11:5]=instr[31:25], imm[4:0]=instr[11:7]
+            `OPCODE_STYPE: begin
+                imm_out = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+            end
+
+            // B-type (branch): imm = {instr[31], instr[7], instr[30:25], instr[11:8], 1'b0} sign-extended
+            `OPCODE_BTYPE: begin
+                imm_out = {{19{instr[31]}},
+                           instr[31],
+                           instr[7],
+                           instr[30:25],
+                           instr[11:8],
+                           1'b0};
+            end
+
+            // J-type (JAL): imm = {instr[31], instr[19:12], instr[20], instr[30:21], 1'b0} sign-extended
+            `OPCODE_JTYPE: begin
+                imm_out = {{11{instr[31]}},
+                           instr[31],
+                           instr[19:12],
+                           instr[20],
+                           instr[30:21],
+                           1'b0};
+            end
+
+            // U-type (LUI): imm = instr[31:12] << 12 (no sign extension needed)
+            `OPCODE_UTYPE: begin
+                imm_out = {instr[31:12], `ZERO_12};
+            end
+
+            // AUIPC: same encoding as U-type
+            `OPCODE_AUIPC: begin
+                imm_out = {instr[31:12], `ZERO_12};
+            end
+
+            // For R-type and unknown opcodes, immediate = 0
+            default: begin
+                imm_out = 32'h00000000;
+            end
         endcase
     end
-    endmodule
-    
+
+endmodule
+

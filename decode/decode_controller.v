@@ -61,72 +61,178 @@
 `define WEAK_NOT_TAKEN   2'b01
 `define STRONG_TAKEN     2'b10
 `define WEAK_TAKEN       2'b11
+//`timescale 1ns/1ps
 
-module decode_controller (
-    input [6:0] opcode,
-    input [2:0] func3,
-    input [6:0] func7,
-    output ex_alu_src,
-    output mem_write,
-    output mem_read,
-    output reg [2:0] mem_load_type,
-    output reg [1:0] mem_store_type,
-    output wb_reg_file,
-    output invalid_inst
+module decode_controller_pipelined (
+    input  wire [6:0] opcode,
+    input  wire [2:0] func3,
+    input  wire [6:0] func7,
+
+    // Datapath control outputs
+    output reg        ex_alu_src,      // 1 -> use immediate as ALU operand 2
+    output reg        mem_write,       // store to memory
+    output reg        mem_read,        // load from memory
+    output reg [2:0]  mem_load_type,   // LOAD_LB/LH/LW/LBU/LHU/LOAD_DEF
+    output reg [1:0]  mem_store_type,  // STORE_SB/SH/SW/STORE_DEF
+
+    // Register-file write enable and mem-to-reg
+    output reg        wb_reg_file,     // write enable for regfile
+    output reg        memtoreg,        // 1 -> writeback data comes from memory (loads)
+
+    // Branch / Jump / PC control hints
+    output reg        branch,          // B-type
+    output reg        jal,             // JAL
+    output reg        jalr,            // JALR (I-type)
+    output reg        auipc,           // AUIPC (U-type)
+    output reg        lui,             // LUI (U-type)
+
+    // Simple ALU control (map to ALU_* defines you already have)
+    output reg [3:0]  alu_ctrl         // ALU_ADD, ALU_SUB, ALU_AND, ...
 );
-    wire r_type_inst;
-    wire i_type_inst;
-    wire wb_inst;
-    wire u_type_inst;
-    wire b_type_inst;
-    wire j_type_inst;
-    wire aupic_inst;
-    wire jalr_inst;
 
-    assign wb_inst = (opcode == `OPCODE_RTYPE);
-    assign r_type_inst = (wb_inst && (func7 == `FUNC7_ADD || func7 == `FUNC7_SUB));
-    assign i_type_inst = (opcode == `OPCODE_ITYPE);
-    assign mem_write = (opcode == `OPCODE_STYPE);
-    assign mem_read = (opcode == `OPCODE_ILOAD);
-    assign u_type_inst = (opcode == `OPCODE_UTYPE);
-    assign b_type_inst = (opcode == `OPCODE_BTYPE);
-    assign j_type_inst = (opcode == `OPCODE_JTYPE);
-    assign aupic_inst = ( opcode == `OPCODE_AUIPC);
-    assign jalr_inst = (opcode == `OPCODE_IJALR);
-
-    assign ex_alu_src  = i_type_inst || mem_read || mem_write ||
-                          u_type_inst ||aupic_inst || jalr_inst;
-
-    assign wb_reg_file  = wb_inst || i_type_inst || mem_read ||
-                          u_type_inst ||aupic_inst || jalr_inst || j_type_inst;
-                         
-    assign invalid_inst = !(r_type_inst || ex_alu_src ||
-                            b_type_inst || j_type_inst);
+    // Local opcode class wires
+    wire r_type  = (opcode == `OPCODE_RTYPE);
+    wire i_type  = (opcode == `OPCODE_ITYPE);
+    wire iload   = (opcode == `OPCODE_ILOAD);
+    wire stype   = (opcode == `OPCODE_STYPE);
+    wire btype   = (opcode == `OPCODE_BTYPE);
+    wire jtype   = (opcode == `OPCODE_JTYPE);
+    wire auipc_o = (opcode == `OPCODE_AUIPC);
+    wire utype   = (opcode == `OPCODE_UTYPE);
+    wire jalr_o  = (opcode == `OPCODE_IJALR);
 
     always @(*) begin
-        mem_store_type = `STORE_DEF; // Disable writing
+        // default control values
+        ex_alu_src    = 1'b0;
+        mem_write     = 1'b0;
+        mem_read      = 1'b0;
+        mem_load_type = `LOAD_DEF;
+        mem_store_type= `STORE_DEF;
+        wb_reg_file   = 1'b0;
+        memtoreg      = 1'b0;
+        branch        = 1'b0;
+        jal           = 1'b0;
+        jalr          = 1'b0;
+        auipc         = 1'b0;
+        lui           = 1'b0;
+        alu_ctrl      = `ALU_ADD; // default
+
+        // classify opcode -> set enables & wb_reg_file
+        if (r_type) begin
+            ex_alu_src  = 1'b0;
+            wb_reg_file = 1'b1;   // ALU result -> regfile
+            memtoreg    = 1'b0;
+        end
+        else if (i_type) begin
+            // I-type arithmetic (immediate used)
+            ex_alu_src  = 1'b1;
+            wb_reg_file = 1'b1;   // ALU result -> regfile
+            memtoreg    = 1'b0;
+        end
+        else if (iload) begin
+            // Loads: address calculation uses ALU (rs1 + imm), read from memory, writeback from memory
+            ex_alu_src  = 1'b1;
+            mem_read    = 1'b1;
+            wb_reg_file = 1'b1;
+            memtoreg    = 1'b1;   // select memory for WB
+        end
+        else if (stype) begin
+            ex_alu_src  = 1'b1;
+            mem_write   = 1'b1;
+            wb_reg_file = 1'b0;
+            memtoreg    = 1'b0;
+        end
+        else if (btype) begin
+            branch      = 1'b1;
+            ex_alu_src  = 1'b0;
+            wb_reg_file = 1'b0;
+            memtoreg    = 1'b0;
+        end
+        else if (jtype) begin
+            jal         = 1'b1;
+            wb_reg_file = 1'b1;   // PC+4 -> regfile
+            memtoreg    = 1'b0;
+        end
+        else if (jalr_o) begin
+            jalr        = 1'b1;
+            ex_alu_src  = 1'b1;
+            wb_reg_file = 1'b1;   // PC+4 -> regfile
+            memtoreg    = 1'b0;
+        end
+        else if (utype) begin
+            // LUI: write imm<<12 to rd (ALU/imm result)
+            lui         = 1'b1;
+            wb_reg_file = 1'b1;
+            memtoreg    = 1'b0;
+            // ex_alu_src intentionally left 0 (design convention)
+        end
+        else if (auipc_o) begin
+            auipc       = 1'b1;
+            wb_reg_file = 1'b1;
+            memtoreg    = 1'b0;
+            // ex_alu_src intentionally left 0 (design convention)
+        end
+
+        // mem load/store type decode
+// mem load type decode
+if (mem_read) begin
+    case (func3)
+        3'b000: mem_load_type = `LOAD_LB;   // LB
+        3'b001: mem_load_type = `LOAD_LH;   // LH
+        3'b010: mem_load_type = `LOAD_LW;   // LW
+        3'b100: mem_load_type = `LOAD_LBU;  // LBU (func3 == 100)
+        3'b101: mem_load_type = `LOAD_LHU;  // LHU (func3 == 101)
+        default: mem_load_type = `LOAD_DEF;
+    endcase
+end
+        
         if (mem_write) begin
             case (func3)
                 3'b000: mem_store_type = `STORE_SB;
                 3'b001: mem_store_type = `STORE_SH;
                 3'b010: mem_store_type = `STORE_SW;
-                default:mem_store_type = `STORE_DEF; // Disable writing
+                default: mem_store_type = `STORE_DEF;
             endcase
         end
-    end
 
-    always @(*) begin
-        mem_load_type = `LOAD_DEF; // Load full value
-        if (mem_read) begin
+        // ALU control
+        if (r_type) begin
             case (func3)
-                3'b000: mem_load_type = `LOAD_LB;
-                3'b001: mem_load_type = `LOAD_LH;
-                3'b010: mem_load_type = `LOAD_LW;
-                3'b100: mem_load_type = `LOAD_LBU;
-                3'b101: mem_load_type = `LOAD_LHU;
-                default:mem_load_type = `LOAD_DEF; // Load full value
+                3'b000: alu_ctrl = (func7 == `FUNC7_SUB) ? `ALU_SUB : `ALU_ADD;
+                3'b001: alu_ctrl = `ALU_SLL;
+                3'b010: alu_ctrl = `ALU_SLT;
+                3'b011: alu_ctrl = `ALU_SLTU;
+                3'b100: alu_ctrl = `ALU_XOR;
+                3'b101: alu_ctrl = (func7 == `FUNC7_SUB) ? `ALU_SRA : `ALU_SRL;
+                3'b110: alu_ctrl = `ALU_OR;
+                3'b111: alu_ctrl = `ALU_AND;
+                default: alu_ctrl = `ALU_ADD;
             endcase
         end
-    end
-
+        else if (iload) begin
+            // Loads use ADD for address calculation
+            alu_ctrl = `ALU_ADD;
+        end
+        else if (i_type || jalr_o) begin
+            // I-type immediates (shifts handled by func7)
+            case (func3)
+                3'b000: alu_ctrl = `ALU_ADD;
+                3'b001: alu_ctrl = `ALU_SLL;
+                3'b010: alu_ctrl = `ALU_SLT;
+                3'b011: alu_ctrl = `ALU_SLTU;
+                3'b100: alu_ctrl = `ALU_XOR;
+                3'b101: alu_ctrl = (func7 == `FUNC7_SUB) ? `ALU_SRA : `ALU_SRL;
+                3'b110: alu_ctrl = `ALU_OR;
+                3'b111: alu_ctrl = `ALU_AND;
+                default: alu_ctrl = `ALU_ADD;
+            endcase
+        end
+        else if (btype) begin
+            alu_ctrl = `ALU_SUB;
+        end
+        else begin
+            alu_ctrl = `ALU_ADD;
+        end
+    end // always
 endmodule
+
