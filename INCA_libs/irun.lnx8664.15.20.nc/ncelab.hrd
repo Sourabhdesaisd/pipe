@@ -2,7 +2,5 @@
 // File created by:  irun
 // Do not modify this file
 //
--access
+-ACCESS
 +rwc
--f
-compile.f

@@ -12,7 +12,7 @@ module memory_1kb (
     output reg  [31:0] read_data
 );
 
-    reg [31:0] mem [0:255];           // 256 words = 1 KB
+    reg [31:0] mem [0:255];           // 256 words = 1 KB /// byte addresble madbeku word addreble edde  ask mem size 
 
     wire [7:0] word_addr = addr[9:2]; // 4-byte aligned address
 

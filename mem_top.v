@@ -62,7 +62,7 @@ module data_memory_unit (
 
 endmodule
 
-
+/*
 
 //`timescale 1ns/1ps
 
@@ -245,4 +245,4 @@ end
   end
 
 endmodule
-
+*/

@@ -1,38 +1,116 @@
-// cpu_top.v
+// rv32i_core.v
+// Full RV32I pipeline top (IF -> ID -> EX -> MEM -> WB).
+// Uses the modules from your project: inst_mem, pc_reg, pc_update, if_id_reg,
+// top_decode (contains its own register_file and exposes wb_wr_*), id_ex_reg,
+// execute_stage, ex_mem_reg (updated), data_memory_unit, mem_wb_reg (updated), writeback_mux.
+/*
+module main_top(
+    input  wire        clk,
+    input  wire        rst,
 
-module main_top (
-    input  wire clk,
-    input  wire rst,
-    input  wire id_flush,
-
-    // instruction input to decode (for testbench)
-    input  wire [31:0] instruction_in,
-
-    // writeback control (to write register file inside top_decode)
-    input  wire        wb_wr_en,
-    input  wire [4:0]  wb_wr_addr,
-    input  wire [31:0] wb_wr_data,
-
-    // outputs from execute stage
-    output wire [31:0] alu_result,
-    output wire        zero_flag,
-    output wire        negative_flag,
-    output wire        carry_flag,
-    output wire        overflow_flag
+    // Observability (optional)
+    output wire [31:0] wb_result,   // writeback result visible externally
+    output wire [31:0] ex_result,   // ALU result visible externally
+    output wire        pc_en_out    // PC enable (for external observation)
 );
 
-    // ------------------ signals between decode and id_ex ------------------
+    // -------------------------------------------------------
+    // Simple config: no BTB/predictor and no hazard logic yet.
+    // Those signals are present as wires and defaulted to safe values.
+    // -------------------------------------------------------
+
+    // IF stage wires
+    wire [31:0] pc;
+    wire [31:0] next_pc;
+    wire [31:0] instruction;
+    wire        read_en = 1'b1;
+
+    // Predictor / BTB wires (not used yet)
+    wire [31:0] btb_target_pc = 32'h0;
+    wire        btb_pc_valid  = 1'b0;
+    wire        btb_pc_predictTaken = 1'b0;
+    wire        btb_update = 1'b0;
+    wire [31:0] btb_update_target = 32'h0;
+
+    // EX->IF jump signals (from execute stage / later from EX/MEM pipeline)
+    wire [31:0] ex_pc_jump_addr;
+    wire        ex_jump_en;
+    assign ex_pc_jump_addr = 32'h0;
+    assign ex_jump_en = 1'b0;
+
+    // Simple pipeline control (no stalls by default)
+    wire pc_en = 1'b1;
+    wire if_id_en = 1'b1;
+    wire id_ex_en = 1'b1;
+    wire ex_mem_en = 1'b1;
+    wire mem_wb_en = 1'b1;
+
+    // expose pc_en externally
+    assign pc_en_out = pc_en;
+
+    // -------------------------------------------------------
+    // IF: PC register, next-PC selection, instruction memory
+    // -------------------------------------------------------
+    pc u_pc (
+        .clk     (clk),
+        .rst     (rst),
+        .next_pc (next_pc),
+        .pc_en   (pc_en),
+        .pc      (pc)
+    );
+
+    pc_update u_pc_update (
+        .pc                 (pc),
+        .pc_jump_addr       (ex_pc_jump_addr),
+        .btb_target_pc      (btb_target_pc),
+        .btb_pc_valid       (btb_pc_valid),
+        .btb_pc_predictTaken(btb_pc_predictTaken),
+        .jump_en            (ex_jump_en),
+        .next_pc            (next_pc)
+    );
+
+    inst_mem u_inst_mem (
+        .pc          (pc),
+        .read_en     (read_en),
+        .instruction (instruction)
+    );
+
+    // IF/ID pipeline register (keeps your original names)
+    wire [31:0] pc_id;
+    wire [31:0] instruction_id;
+    if_id_reg u_if_id_reg (
+        .clk         (clk),
+        .rst         (rst),
+        .en          (if_id_en),
+        .pc          (pc),
+        .instruction (instruction),
+        .pc_id       (pc_id),
+        .instruction_id (instruction_id)
+    );
+
+    // -------------------------------------------------------
+    // ID stage (top_decode which contains register_file)
+    // top_decode expects writeback ports: wb_wr_en, wb_wr_addr, wb_wr_data
+    // We will drive these from the MEM/WB stage later.
+    // -------------------------------------------------------
+
+    // writeback wires (driven in WB)
+    wire        wb_wr_en;
+    wire [4:0]  wb_wr_addr;
+    wire [31:0] wb_wr_data;
+
+    // decode outputs
     wire [6:0]  opcode;
     wire [2:0]  func3;
     wire [6:0]  func7;
-    wire [4:0]  rd;
-    wire [4:0]  rs1;
-    wire [4:0]  rs2;
+    wire [4:0]  rd_idx;
+    wire [4:0]  rs1_idx;
+    wire [4:0]  rs2_idx;
     wire [31:0] imm_out;
     wire [31:0] rs1_data;
     wire [31:0] rs2_data;
 
-    // control signals from decode controller
+    // control signals from decode
     wire        ex_alu_src;
     wire        mem_write;
     wire        mem_read;
@@ -47,469 +125,681 @@ module main_top (
     wire        lui;
     wire [3:0]  alu_ctrl;
 
-    // Instantiate your existing top_decode
     top_decode u_top_decode (
-        .clk(clk),
-        .rst(rst),
+        .clk            (clk),
+        .rst            (rst),
+        .instruction_in (instruction_id),
+        .id_flush       (1'b0),         // no flush by default
+        .wb_wr_en       (wb_wr_en),
+        .wb_wr_addr     (wb_wr_addr),
+        .wb_wr_data     (wb_wr_data),
 
-        .instruction_in(instruction_in),
-        .id_flush(id_flush),
+        // outputs
+        .opcode         (opcode),
+        .func3          (func3),
+        .func7          (func7),
+        .rd             (rd_idx),
+        .rs1            (rs1_idx),
+        .rs2            (rs2_idx),
+        .imm_out        (imm_out),
+        .rs1_data       (rs1_data),
+        .rs2_data       (rs2_data),
 
-        .wb_wr_en(wb_wr_en),
-        .wb_wr_addr(wb_wr_addr),
-        .wb_wr_data(wb_wr_data),
+        // control
+        .ex_alu_src     (ex_alu_src),
+        .mem_write      (mem_write),
+        .mem_read       (mem_read),
+        .mem_load_type  (mem_load_type),
+        .mem_store_type (mem_store_type),
+        .wb_reg_file    (wb_reg_file),
+        .memtoreg       (memtoreg),
+        .branch         (branch),
+        .jal            (jal),
+        .jalr           (jalr),
+        .auipc          (auipc),
+        .lui            (lui),
+        .alu_ctrl       (alu_ctrl)
+    );
 
-        .opcode(opcode),
-        .func3(func3),
-        .func7(func7),
-        .rd(rd),
-        .rs1(rs1),
-        .rs2(rs2),
-        .imm_out(imm_out),
+    // -------------------------------------------------------
+    // ID/EX pipeline register
+    // -------------------------------------------------------
+    wire [31:0] pc_ex;
+    wire [6:0]  opcode_ex;
+    wire [2:0]  func3_ex;
+    wire [6:0]  func7_ex;
+    wire [4:0]  rd_ex;
+    wire [4:0]  rs1_ex;
+    wire [4:0]  rs2_ex;
+    wire [31:0] imm_ex;
+    wire [31:0] rs1_data_ex;
+    wire [31:0] rs2_data_ex;
 
-        .rs1_data(rs1_data),
-        .rs2_data(rs2_data),
+    wire        ex_alu_src_ex;
+    wire        mem_write_ex;
+    wire        mem_read_ex;
+    wire [2:0]  mem_load_type_ex;
+    wire [1:0]  mem_store_type_ex;
+    wire        wb_reg_file_ex;
+    wire        memtoreg_ex;
+    wire        branch_ex;
+    wire        jal_ex;
+    wire        jalr_ex;
+    wire        auipc_ex;
+    wire        lui_ex;
+    wire [3:0]  alu_ctrl_ex;
 
-        .ex_alu_src(ex_alu_src),
-        .mem_write(mem_write),
-        .mem_read(mem_read),
-        .mem_load_type(mem_load_type),
+    id_ex_reg u_id_ex_reg (
+        .clk        (clk),
+        .rst        (rst),
+        .en         (id_ex_en),
+        .flush      (1'b0),
+
+        .pc_id      (pc_id),
+        .pc_ex      (pc_ex),
+
+        .opcode     (opcode),
+        .func3      (func3),
+        .func7      (func7),
+        .rd         (rd_idx),
+        .rs1        (rs1_idx),
+        .rs2        (rs2_idx),
+        .imm_out    (imm_out),
+
+        .rs1_data   (rs1_data),
+        .rs2_data   (rs2_data),
+
+        .ex_alu_src (ex_alu_src),
+        .mem_write  (mem_write),
+        .mem_read   (mem_read),
+        .mem_load_type (mem_load_type),
         .mem_store_type(mem_store_type),
-        .wb_reg_file(wb_reg_file),
-        .memtoreg(memtoreg),
-        .branch(branch),
-        .jal(jal),
-        .jalr(jalr),
-        .auipc(auipc),
-        .lui(lui),
-        .alu_ctrl(alu_ctrl)
+        .wb_reg_file (wb_reg_file),
+        .memtoreg   (memtoreg),
+        .branch     (branch),
+        .jal        (jal),
+        .jalr       (jalr),
+        .auipc      (auipc),
+        .lui        (lui),
+        .alu_ctrl   (alu_ctrl),
+
+        .opcode_ex  (opcode_ex),
+        .func3_ex   (func3_ex),
+        .func7_ex   (func7_ex),
+        .rd_ex      (rd_ex),
+        .rs1_ex     (rs1_ex),
+        .rs2_ex     (rs2_ex),
+        .imm_ex     (imm_ex),
+
+        .rs1_data_ex(rs1_data_ex),
+        .rs2_data_ex(rs2_data_ex),
+
+        .ex_alu_src_ex    (ex_alu_src_ex),
+        .mem_write_ex     (mem_write_ex),
+        .mem_read_ex      (mem_read_ex),
+        .mem_load_type_ex (mem_load_type_ex),
+        .mem_store_type_ex(mem_store_type_ex),
+        .wb_reg_file_ex   (wb_reg_file_ex),
+        .memtoreg_ex      (memtoreg_ex),
+        .branch_ex        (branch_ex),
+        .jal_ex           (jal_ex),
+        .jalr_ex          (jalr_ex),
+        .auipc_ex         (auipc_ex),
+        .lui_ex           (lui_ex),
+        .alu_ctrl_ex      (alu_ctrl_ex)
     );
 
-    // ------------------ ID/EX pipeline wires ------------------
-    wire [31:0] idex_rs1, idex_rs2, idex_imm;
-    wire [4:0]  idex_rd;
-    wire [6:0]  idex_opcode, idex_func7;
-    wire [2:0]  idex_func3;
+    // -------------------------------------------------------
+    // EX stage
+    // -------------------------------------------------------
+    wire [31:0] alu_result_ex;
+    wire        zero_flag_ex;
+    wire        negative_flag_ex;
+    wire        carry_flag_ex;
+    wire        overflow_flag_ex;
 
-    wire        idex_ex_alu_src;
-    wire [3:0]  idex_alu_ctrl;
-    // (other control wires can be added if needed)
+    wire [31:0] jump_addr_ex;
+    wire [31:0] update_pc_ex;
+    wire        modify_pc_ex;
+    wire        update_btb_ex;
 
-    // Instantiate pipeline register
-    id_ex_pipeline u_id_ex (
-        .clk(clk),
-        .rst(rst),
-        .id_ex_flush(id_flush),
+    // predictedTaken tie 0 for now
+    wire predictedTaken_ex = 1'b0;
 
-        .rs1_in(rs1_data),
-        .rs2_in(rs2_data),
-        .imm_in(imm_out),
-        .rd_in(rd),
-        .opcode_in(opcode),
-        .func3_in(func3),
-        .func7_in(func7),
+   execute_stage u_execute_stage (
+        .pc_ex            (pc_ex),
+        .rs1_data_ex      (rs1_data_ex),
+        .rs2_data_ex      (rs2_data_ex),
+        .imm_ex           (imm_ex),
+        .ex_alu_src_ex    (ex_alu_src_ex),
+        .opcode_ex        (opcode_ex),
+        .func3_ex         (func3_ex),
+        .func7_ex         (func7_ex),
+        .predictedTaken_ex(predictedTaken_ex),
 
-        .ex_alu_src_in(ex_alu_src),
-        .mem_write_in(mem_write),
-        .mem_read_in(mem_read),
-        .mem_load_type_in(mem_load_type),
-        .mem_store_type_in(mem_store_type),
-        .wb_reg_file_in(wb_reg_file),
-        .memtoreg_in(memtoreg),
-        .branch_in(branch),
-        .jal_in(jal),
-        .jalr_in(jalr),
-        .auipc_in(auipc),
-        .lui_in(lui),
-        .alu_ctrl_in(alu_ctrl),
+        .alu_result_ex    (alu_result_ex),
+        .zero_flag_ex     (zero_flag_ex),
+        .negative_flag_ex (negative_flag_ex),
+        .carry_flag_ex    (carry_flag_ex),
+        .overflow_flag_ex (overflow_flag_ex),
 
-        .rs1_out(idex_rs1),
-        .rs2_out(idex_rs2),
-        .imm_out(idex_imm),
-        .rd_out(idex_rd),
-        .opcode_out(idex_opcode),
-        .func3_out(idex_func3),
-        .func7_out(idex_func7),
+        .jump_addr_ex     (jump_addr_ex),
+        .update_pc_ex     (update_pc_ex),
+        .modify_pc_ex     (modify_pc_ex),
+        .update_btb_ex    (update_btb_ex)
+    );
+execute_stage u_execute_stage (
+    .pc                 (ex_pc),
+    .op1                (ex_op1),
+    .op2                (ex_op2),
+    .pipeline_flush     (ex_forward_pipeline_flush),
 
-        .ex_alu_src_out(idex_ex_alu_src),
-        .mem_write_out(), // not used in this small test
-        .mem_read_out(),
-        .mem_load_type_out(),
-        .mem_store_type_out(),
-        .wb_reg_file_out(),
-        .memtoreg_out(),
-        .branch_out(),
-        .jal_out(),
-        .jalr_out(),
-        .auipc_out(),
-        .lui_out(),
-        .alu_ctrl_out(idex_alu_ctrl)
+    .immediate          (ex_immediate),
+    .func7              (ex_func7),
+    .func3              (ex_func3),
+    .opcode             (ex_opcode),
+    .ex_alu_src         (ex_alu_src),
+    .predictedTaken     (ex_pred_taken),
+    .invalid_inst       (invalid_inst),
+    .ex_wb_reg_file     (ex_wb_reg_file),
+    .alu_rd_in          (ex_wb_rd),
+
+    // forwarding inputs (new)
+    .operand_a_forward_cntl (operand_a_cntl),
+    .operand_b_forward_cntl (operand_b_cntl),
+    .data_forward_mem       (data_forward_mem),
+    .data_forward_wb        (data_forward_wb),
+
+    // outputs
+    .result_alu         (ex_result),
+    .zero_flag          (),    // if you want flags use wires
+    .negative_flag      (),
+    .carry_flag         (),
+    .overflow_flag      (),
+
+    .op1_selected       (),    // optional
+    .op2_selected       (),    // optional
+    .op2_after_alu_src  (),
+
+    .pc_jump_addr       (ex_if_pc_jump_addr),
+    .jump_en            (ex_jump_en),
+    .update_btb         (btb_update),
+    .calc_jump_addr     (btb_update_target),
+
+    .wb_rd              (alu_rd),
+    .wb_reg_file        (alu_wb)
+);
+
+forwarding_unit forwarding_unit_inst (
+    .rs1(ex_rs1),               // EX stage rs1 index (from ID/EX)
+    .rs2(ex_rs2),               // EX stage rs2 index
+    .rd_mem(rd_mem),            // EX/MEM dest index (from ex_mem_reg)
+    .rd_wb(rd_wb),              // MEM/WB dest index (from mem_wb_reg)
+    .reg_file_wr_mem(wb_reg_file_mem), // EX/MEM write-enable
+    .reg_file_wr_wb(wb_reg_file_wb),   // MEM/WB write-enable
+    .operand_a_cntl(operand_a_cntl),
+    .operand_b_cntl(operand_b_cntl)
+);
+
+
+    // expose EX result for external observe
+    assign ex_result = alu_result_ex;
+
+    // -------------------------------------------------------
+    // EX/MEM pipeline register (capture EX outputs -> MEM stage)
+    // Using updated ex_mem_reg that includes pc_ex input to forward pc to MEM
+    // -------------------------------------------------------
+    wire [31:0] alu_result_mem;
+    wire        zero_flag_mem;
+    wire        negative_flag_mem;
+    wire        carry_flag_mem;
+    wire        overflow_flag_mem;
+    wire [31:0] rs2_data_mem;
+    wire [4:0]  rd_mem;
+    wire        mem_write_mem;
+    wire        mem_read_mem;
+    wire [2:0]  mem_load_type_mem;
+    wire [1:0]  mem_store_type_mem;
+    wire        wb_reg_file_mem;
+    wire        memtoreg_mem;
+    wire        branch_mem;
+    wire        jal_mem;
+    wire        jalr_mem;
+    wire        modify_pc_mem;
+    wire [31:0] update_pc_mem;
+    wire [31:0] jump_addr_mem;
+    wire        update_btb_mem;
+    wire [31:0] pc_mem;
+
+    ex_mem_reg u_ex_mem_reg (
+        .clk                (clk),
+        .rst                (rst),
+        .en                 (ex_mem_en),
+        .flush              (1'b0),
+
+        .alu_result_ex      (alu_result_ex),
+        .zero_flag_ex       (zero_flag_ex),
+        .negative_flag_ex   (negative_flag_ex),
+        .carry_flag_ex      (carry_flag_ex),
+        .overflow_flag_ex   (overflow_flag_ex),
+
+        .rs2_data_ex        (rs2_data_ex),
+        .rd_ex              (rd_ex),
+
+        .mem_write_ex       (mem_write_ex),
+        .mem_read_ex        (mem_read_ex),
+        .mem_load_type_ex   (mem_load_type_ex),
+        .mem_store_type_ex  (mem_store_type_ex),
+        .wb_reg_file_ex     (wb_reg_file_ex),
+        .memtoreg_ex        (memtoreg_ex),
+
+        .branch_ex          (branch_ex),
+        .jal_ex             (jal_ex),
+        .jalr_ex            (jalr_ex),
+        .modify_pc_ex       (modify_pc_ex),
+        .update_pc_ex       (update_pc_ex),
+        .jump_addr_ex       (jump_addr_ex),
+        .update_btb_ex      (update_btb_ex),
+
+        .pc_ex              (pc_ex),        // forwarded pc
+
+        // outputs
+        .alu_result_mem     (alu_result_mem),
+        .zero_flag_mem      (zero_flag_mem),
+        .negative_flag_mem  (negative_flag_mem),
+        .carry_flag_mem     (carry_flag_mem),
+        .overflow_flag_mem  (overflow_flag_mem),
+
+        .rs2_data_mem       (rs2_data_mem),
+        .rd_mem             (rd_mem),
+
+        .mem_write_mem      (mem_write_mem),
+        .mem_read_mem       (mem_read_mem),
+        .mem_load_type_mem  (mem_load_type_mem),
+        .mem_store_type_mem (mem_store_type_mem),
+        .wb_reg_file_mem    (wb_reg_file_mem),
+        .memtoreg_mem       (memtoreg_mem),
+
+        .branch_mem         (branch_mem),
+        .jal_mem            (jal_mem),
+        .jalr_mem           (jalr_mem),
+        .modify_pc_mem      (modify_pc_mem),
+        .update_pc_mem      (update_pc_mem),
+        .jump_addr_mem      (jump_addr_mem),
+        .update_btb_mem     (update_btb_mem),
+
+        .pc_mem             (pc_mem)
     );
 
-    // Instantiate execute_top (wire idex outputs to exec inputs)
-    execute_top u_execute (
-        .rs1    (idex_rs1),
-        .rs2    (idex_rs2),
-        .imm_out(idex_imm),
-        .ex_alu_src(idex_ex_alu_src),
-        .opcode (idex_opcode),
-        .funct3 (idex_func3),
-        .funct7 (idex_func7),
+// forwarding control wires
+wire [1:0] operand_a_cntl;
+wire [1:0] operand_b_cntl;
 
-        .alu_result(alu_result),
-        .zero_flag(zero_flag),
-        .negative_flag(negative_flag),
-        .carry_flag(carry_flag),
-        .overflow_flag(overflow_flag)
+// forwarded data sources
+wire [31:0] data_forward_mem;   // from EX/MEM (alu_result_mem)
+wire [31:0] data_forward_wb;    // from MEM/WB (final WB value)
+
+// from EX/MEM (ensure these names come out of your ex_mem_reg or ex_mem_pipeline)
+wire [31:0] alu_result_mem;     // ALU result in EX/MEM
+wire [4:0]  rd_mem;             // dest reg in EX/MEM (aka alu_rd)
+wire        wb_reg_file_mem;    // EX/MEM will write back?
+
+// from MEM/WB (ensure mem_wb_reg outputs these names)
+wire [31:0] alu_result_wb;      // ALU result captured in MEM/WB
+wire [31:0] mem_load_data_wb;   // Load result captured in MEM/WB
+wire        memtoreg_wb;        // MEM/WB memtoreg select
+wire [4:0]  rd_wb;              // dest reg in MEM/WB
+wire        wb_reg_file_wb;     // MEM/WB will write back?
+    
+  
+ // -------------------------------------------------------
+    // MEM stage: data memory unit
+    // -------------------------------------------------------
+    wire [31:0] wb_data_from_mem;
+    data_memory_unit u_data_memory_unit (
+        .clk        (clk),
+        .mem_read   (mem_read_mem),
+        .mem_write  (mem_write_mem),
+        .store_type (mem_store_type_mem),
+        .load_type  (mem_load_type_mem),
+        .alu_result (alu_result_mem),
+        .rs2        (rs2_data_mem),
+        .memtoreg   (memtoreg_mem),
+        .wb_data    (wb_data_from_mem)
     );
+
+    // -------------------------------------------------------
+    // MEM/WB pipeline register (capture MEM outputs -> WB stage)
+    // Updated to carry pc+4 and pc_to_reg
+    // -------------------------------------------------------
+    wire [31:0] alu_result_wb;
+    wire [31:0] mem_load_data_wb;
+    wire [4:0]  rd_wb;
+    wire        wb_reg_file_wb;  
+    wire        memtoreg_wb;   
+    wire [31:0] pc_plus4_wb;
+    wire        pc_to_reg_wb;
+
+    // compute pc+4 in MEM stage
+    wire [31:0] pc_plus4_calc = pc_mem + 32'h4;
+
+    mem_wb_reg u_mem_wb_reg (
+        .clk                (clk),
+        .rst                (rst),
+        .en                 (mem_wb_en),
+        .flush              (1'b0),
+
+        .alu_result_for_wb  (alu_result_mem),
+        .load_wb_data       (wb_data_from_mem),
+        .rd_for_wb          (rd_mem),
+        .wb_reg_file_in     (wb_reg_file_mem),
+        .memtoreg_in        (memtoreg_mem),
+
+        .pc_plus4_in        (pc_plus4_calc),
+        .pc_to_reg_in       (jal_mem || jalr_mem),
+
+        .alu_result_wb      (alu_result_wb),
+        .mem_load_data_wb   (mem_load_data_wb),
+        .rd_wb              (rd_wb),
+        .wb_reg_file_wb     (wb_reg_file_wb),
+        .memtoreg_wb        (memtoreg_wb),
+
+        .pc_plus4_wb        (pc_plus4_wb),
+        .pc_to_reg_wb       (pc_to_reg_wb)
+    );
+
+    // -------------------------------------------------------
+    // Writeback mux and top-level writeback connections
+    // -------------------------------------------------------
+    wire [31:0] wb_wr_data_w;
+    writeback_mux u_writeback_mux (
+        .alu_result_wb    (alu_result_wb),
+        .mem_load_data_wb (mem_load_data_wb),
+        .pc_plus4_wb      (pc_plus4_wb),
+        .memtoreg_wb      (memtoreg_wb),
+        .pc_to_reg_wb     (pc_to_reg_wb),
+        .wr_data          (wb_wr_data_w)
+    );
+
+    // Drive top_decode's writeback ports (it contains the register_file)
+    assign wb_wr_en   = wb_reg_file_wb;
+    assign wb_wr_addr = rd_wb;
+    assign wb_wr_data = wb_wr_data_w;
+
+    // Also expose external WB result and ALU result
+    assign wb_result = wb_wr_data_w;
+    assign ex_result = alu_result_ex;
 
 endmodule
 
 
-// tb_cpu_top_all.v
+*/
+// -------------------------------------------------
+// rv32i_core (updated top) - uses the pipeline regs above
+// NOTE: This top still expects your other stage modules to exist.
+// -------------------------------------------------
+module rv32i_core(
+    input  wire clk,
+    input  wire rst,
+    output wire [31:0] wb_result,
+    output wire [31:0] ex_result,
+    output wire pc_en_out
+);
+    // -- IF/ID wires (assumed by your other modules)
+    wire [31:0] if_instruction, id_instruction;
+    wire [31:0] if_pc, id_pc;
+    wire        id_flush;
+    wire        id_pred_taken;
 
-module tb_cpu_top_all;
+    // -- ID/EX wires (assumed to be created by id_ex_pipeline)
+    wire [31:0] ex_pc;
+    wire [31:0] ex_op1;
+    wire [31:0] ex_op2;
+    wire [4:0]  ex_rs1;
+    wire [4:0]  ex_rs2;
+    wire [4:0]  ex_wb_rd;
+    wire [31:0] ex_immediate;
+    wire [6:0]  ex_opcode;
+    wire        ex_alu_src;
+    wire [6:0]  ex_func7;
+    wire [2:0]  ex_func3;
+    wire        ex_mem_read;
+    wire        ex_wb_reg_file;
+    wire        ex_pred_taken;
 
-    // Clock/reset
-    reg clk = 0;
-    reg rst = 1;
-    reg id_flush = 0;
+    // -- EX/MEM wires (produced by ex_mem_reg above)
+    wire [31:0] alu_result_mem;
+    wire [4:0]  rd_mem;
+    wire        wb_reg_file_mem;
+    wire [31:0] pc_mem;
 
-    // CPU inputs
-    reg  [31:0] instruction_in = 32'b0;
-    reg         wb_wr_en = 0;
-    reg  [4:0]  wb_wr_addr = 5'b0;
-    reg  [31:0] wb_wr_data = 32'b0;
+    // -- MEM/WB wires (produced by mem_wb_reg above)
+    wire [31:0] alu_result_wb;
+    wire [31:0] mem_load_data_wb;
+    wire [4:0]  rd_wb;
+    wire        wb_reg_file_wb;
+    wire        memtoreg_wb;
+    wire [31:0] pc_plus4_wb;
+    wire        pc_to_reg_wb;
 
-    // Outputs from CPU
-    wire [31:0] alu_result;
-    wire        zero_flag, negative_flag, carry_flag, overflow_flag;
+    // forwarding control wires
+    wire [1:0] operand_a_cntl;
+    wire [1:0] operand_b_cntl;
+    wire [31:0] data_forward_mem;
+    wire [31:0] data_forward_wb;
 
-    // Instantiate DUT (cpu_top)
-    main_top UCPU (
-        .clk(clk),
-        .rst(rst),
-        .id_flush(id_flush),
-        .instruction_in(instruction_in),
-        .wb_wr_en(wb_wr_en),
-        .wb_wr_addr(wb_wr_addr),
-        .wb_wr_data(wb_wr_data),
-        .alu_result(alu_result),
-        .zero_flag(zero_flag),
-        .negative_flag(negative_flag),
-        .carry_flag(carry_flag),
-        .overflow_flag(overflow_flag)
+    // hazard signals exposed
+    wire if_id_pipeline_flush;
+    wire if_id_pipeline_en;
+    wire id_ex_pipeline_flush;
+    wire id_ex_pipeline_en;
+    wire invalid_inst;
+    wire load_stall;
+    wire ex_forward_pipeline_flush;
+    wire ex_jump_en;
+    wire [31:0] ex_if_pc_jump_addr;
+    wire btb_update;
+    wire [31:0] btb_update_target;
+    wire [31:0] ex_result_wire;
+
+    // wires for mem stage outputs (assumed by your mem_stage/mem_wb_pipeline)
+    wire [31:0] mem_read_data;
+    wire [31:0] mem_calculated_result;
+
+    // ---------------------------
+    // Instantiate forwarding unit (needs ex_rs1/ex_rs2, rd_mem, rd_wb)
+    // ---------------------------
+    forwarding_unit forwarding_unit_inst (
+        .rs1(ex_rs1),
+        .rs2(ex_rs2),
+        .rd_mem(rd_mem),
+        .rd_wb(rd_wb),
+        .reg_file_wr_mem(wb_reg_file_mem),
+        .reg_file_wr_wb(wb_reg_file_wb),
+        .operand_a_cntl(operand_a_cntl),
+        .operand_b_cntl(operand_b_cntl)
     );
 
-    // clock generation
-    parameter CLK_PERIOD = 10;
-    always #(CLK_PERIOD/2) clk = ~clk;
+    // ---------------------------
+    // Instantiate hazard unit
+    // (ID signals must be connected inside your top - here we assume decode_stage exports them)
+    // ---------------------------
+    // We will assume your decode_stage produces id_rs1, id_rs2 and id_opcode and exposes invalid_inst
+    // Connect these in your actual top to the hazard_unit inputs.
+    wire [4:0] id_rs1;
+    wire [4:0] id_rs2;
+    wire [6:0] id_opcode;
+    hazard_unit hazard_unit_inst (
+        .id_rs1(id_rs1),
+        .id_rs2(id_rs2),
+        .opcode(id_opcode),
+        .ex_rd(ex_wb_rd),             // ID/EX -> EX destination
+        .ex_load_inst(ex_mem_read),   // ID/EX -> ex_mem_read
+        .jump_branch_taken(ex_jump_en),
+        .invalid_inst(invalid_inst),
+        .modify_pc(ex_jump_en),
+        .if_id_pipeline_flush(if_id_pipeline_flush),
+        .if_id_pipeline_en(if_id_pipeline_en),
+        .id_ex_pipeline_flush(id_ex_pipeline_flush),
+        .id_ex_pipeline_en(id_ex_pipeline_en),
+        .pc_en(pc_en_out),
+        .load_stall(load_stall)
+    );
 
-    // Pipeline latency: how many clock cycles to wait after feeding an instruction
-    // Increase if your pipeline is deeper. Default set conservatively to 6 cycles.
-    parameter integer PIPELINE_WAIT_CYCLES = 6;
+    // ---------------------------
+    // Compute data_forward_wb (final WB value) - used by forwarding unit
+    // ---------------------------
+    assign data_forward_mem = alu_result_mem;
+    assign data_forward_wb  = memtoreg_wb ? mem_load_data_wb : alu_result_wb;
 
-    // ----------------------------
-    // Test vector structure (arrays)
-    // ----------------------------
-    // For plain Verilog we use parallel arrays
-    parameter integer NUM_TESTS = 15;
+    // ---------------------------
+    // ****************************************************************************
+    // NOTE: The following block shows where to connect ex_mem_reg and mem_wb_reg.
+    // Your pipeline already has an EX stage and MEM stage. Ensure when you instantiate
+    // ex_mem_reg and mem_wb_reg that you connect the exact signals used there.
+    // ****************************************************************************
+    // Example instantiation (if you are capturing EX stage outputs into ex_mem_reg)
+    // (If you already have ex_mem_pipeline module in your project, you can replace it with this ex_mem_reg)
+    // ---------------------------
 
-    reg [31:0] tv_instruction [0:NUM_TESTS-1];
-    reg [31:0] tv_rs1_value   [0:NUM_TESTS-1];
-    reg [31:0] tv_rs2_value   [0:NUM_TESTS-1];
-    reg [31:0] tv_expected_result [0:NUM_TESTS-1];
-    reg [3:0]  tv_expected_flags  [0:NUM_TESTS-1]; // {z,n,c,v}
-    reg [255:0] tv_desc        [0:NUM_TESTS-1];
+    // --- EX stage should produce alu_result_ex, flags, rs2_data_ex, rd_ex, control signals, pc_ex
+    wire [31:0] alu_result_ex;
+    wire        zero_flag_ex;
+    wire        negative_flag_ex;
+    wire        carry_flag_ex;
+    wire        overflow_flag_ex;
+    wire [31:0] rs2_data_ex;
+    wire [4:0]  rd_ex;
+    wire        mem_write_ex;
+    wire [2:0]  mem_load_type_ex;
+    wire [1:0]  mem_store_type_ex;
+    wire        wb_reg_file_ex;
+    wire        memtoreg_ex;
+    wire        branch_ex;
+    wire        jal_ex;
+    wire        jalr_ex;
+    wire        modify_pc_ex;
+    wire [31:0] update_pc_ex;
+    wire [31:0] jump_addr_ex;
+    wire        update_btb_ex;
 
-    integer i;
-    integer pass_count = 0;
-    integer fail_count = 0;
+    // instantiate ex_mem_reg to capture outputs produced by your execute stage
+    ex_mem_reg ex_mem_reg_inst (
+        .clk(clk),
+        .rst(rst),
+        .en(id_ex_pipeline_en),
+        .flush(id_ex_pipeline_flush),
 
-    // Helper: pack flags for printing
-    function [3:0] pack_flags;
-        input z,n,c,v;
-        begin
-            pack_flags = {z,n,c,v};
-        end
-    endfunction
+        .alu_result_ex(alu_result_ex),
+        .zero_flag_ex(zero_flag_ex),
+        .negative_flag_ex(negative_flag_ex),
+        .carry_flag_ex(carry_flag_ex),
+        .overflow_flag_ex(overflow_flag_ex),
 
-    // Initialize test vectors
-    initial begin
-        // Default: zero everything
-        for (i = 0; i < NUM_TESTS; i = i + 1) begin
-            tv_instruction[i] = 32'b0;
-            tv_rs1_value[i] = 32'b0;
-            tv_rs2_value[i] = 32'b0;
-            tv_expected_result[i] = 32'b0;
-            tv_expected_flags[i] = 4'b0;
-            tv_desc[i] = "unused";
-        end
+        .rs2_data_ex(rs2_data_ex),
+        .rd_ex(rd_ex),
 
-        // ---------------------------
-        // Test 0: ADD x4, x1, x2  (R-type)
-        // enc: funct7=0 rs2=2 rs1=1 func3=0 rd=4 opcode=0110011
-        // ---------------------------
-        tv_instruction[0] = 32'h00208233; // ADD x4,x1,x2
-        tv_rs1_value[0]   = 32'd10;
-        tv_rs2_value[0]   = 32'd22;
-        tv_expected_result[0] = 32'd32;
-        tv_expected_flags[0]  = pack_flags(0,0,0,0);
-        tv_desc[0] = "ADD x4,x1,x2";
+        .mem_write_ex(mem_write_ex),
+        .mem_read_ex(mem_read_ex),
+        .mem_load_type_ex(mem_load_type_ex),
+        .mem_store_type_ex(mem_store_type_ex),
+        .wb_reg_file_ex(wb_reg_file_ex),
+        .memtoreg_ex(memtoreg_ex),
 
-        // ---------------------------
-        // Test 1: SUB x5, x3, x4  (R-type)
-        // SUB has funct7=0100000, funct3=000
-        // encode: funct7=0x20 rs2=4 rs1=3 func3=0 rd=5 opcode=0110011
-        // ---------------------------
-        tv_instruction[1] = {7'b0100000,5'd4,5'd3,3'b000,5'd5,7'b0110011}; // SUB x5,x3,x4
-        tv_rs1_value[1] = 32'd50;
-        tv_rs2_value[1] = 32'd20;
-        tv_expected_result[1] = 32'd30; // 50 - 20
-        tv_expected_flags[1]  = pack_flags(0,0,0,0);
-        tv_desc[1] = "SUB x5,x3,x4";
+        .branch_ex(branch_ex),
+        .jal_ex(jal_ex),
+        .jalr_ex(jalr_ex),
 
-        // ---------------------------
-        // Test 2: AND x6,x1,x2
-        // ---------------------------
-        tv_instruction[2] = {7'b0000000,5'd2,5'd1,3'b111,5'd6,7'b0110011}; // AND
-        tv_rs1_value[2] = 32'hF0F0;
-        tv_rs2_value[2] = 32'h0FF0;
-        tv_expected_result[2] = 32'h00F0;
-        tv_expected_flags[2]  = pack_flags(0,0,0,0);
-        tv_desc[2] = "AND x6,x1,x2";
+        .modify_pc_ex(modify_pc_ex),
+        .update_pc_ex(update_pc_ex),
+        .jump_addr_ex(jump_addr_ex),
+        .update_btb_ex(update_btb_ex),
 
-        // ---------------------------
-        // Test 3: OR x7,x1,x2
-        // ---------------------------
-        tv_instruction[3] = {7'b0000000,5'd2,5'd1,3'b110,5'd7,7'b0110011}; // OR
-        tv_rs1_value[3] = 32'h0A0A;
-        tv_rs2_value[3] = 32'h0505;
-        tv_expected_result[3] = 32'h0F0F;
-        tv_expected_flags[3]  = pack_flags(0,0,0,0);
-        tv_desc[3] = "OR x7,x1,x2";
+        .pc_ex(ex_pc),
 
-        // ---------------------------
-        // Test 4: SLL x8,x1,x2 (shift left logical)
-        // funct3=001
-        // ---------------------------
-        tv_instruction[4] = {7'b0000000,5'd2,5'd1,3'b001,5'd8,7'b0110011}; // SLL
-        tv_rs1_value[4] = 32'd1;
-        tv_rs2_value[4] = 32'd3; // shift by 3 -> result 8
-        tv_expected_result[4] = 32'd8;
-        tv_expected_flags[4]  = pack_flags(0,0,0,0);
-        tv_desc[4] = "SLL x8,x1,x2";
+        .alu_result_mem(alu_result_mem),
+        .zero_flag_mem(), .negative_flag_mem(), .carry_flag_mem(), .overflow_flag_mem(),
+        .rs2_data_mem(), .rd_mem(rd_mem),
+        .mem_write_mem(mem_write_mem),
+        .mem_read_mem(), .mem_load_type_mem(), .mem_store_type_mem(),
+        .wb_reg_file_mem(wb_reg_file_mem),
+        .memtoreg_mem(memtoreg_wb), // note: here we directly map memtoreg to mem_wb_reg later
 
-        // ---------------------------
-        // Test 5: SRL x9,x1,x2 (logical right)
-        // funct3=101, funct7=0
-        // ---------------------------
-        tv_instruction[5] = {7'b0000000,5'd2,5'd1,3'b101,5'd9,7'b0110011}; // SRL
-        tv_rs1_value[5] = 32'h80000000;
-        tv_rs2_value[5] = 32'd1; // logical -> 0x40000000
-        tv_expected_result[5] = 32'h40000000;
-        tv_expected_flags[5]  = pack_flags(0,1,0,0); // negative_flag may reflect sign of result; adjust if your ALU sets negative based on MSB
-        tv_desc[5] = "SRL x9,x1,x2";
+        .branch_mem(), .jal_mem(), .jalr_mem(),
+        .modify_pc_mem(), .update_pc_mem(), .jump_addr_mem(), .update_btb_mem(),
+        .pc_mem(pc_mem)
+    );
 
-        // ---------------------------
-        // Test 6: SRA x10,x1,x2 (arithmetic right)
-        // funct3=101, funct7=0100000 for SRA? Actually SRA uses funct7=0100000? RISC-V SRA uses funct7=0100000.
-        // We'll encode with funct7=0100000 to get SRA
-        // ---------------------------
-        tv_instruction[6] = {7'b0100000,5'd2,5'd1,3'b101,5'd10,7'b0110011}; // SRA
-        tv_rs1_value[6] = 32'h80000000;
-        tv_rs2_value[6] = 32'd1; // arithmetic -> 0xC0000000
-        tv_expected_result[6] = 32'hC0000000;
-        tv_expected_flags[6]  = pack_flags(0,1,0,0);
-        tv_desc[6] = "SRA x10,x1,x2";
+    // ---------------------------
+    // The MEM stage in your design should produce:
+    //   mem_read_data, mem_calculated_result and eventually pass alu_result_for_wb and load_wb_data to mem_wb_reg
+    // Example mem_wb_reg instantiation shown below:
+    // ---------------------------
 
-        // ---------------------------
-        // Test 7: SLT x11,x1,x2 (signed less than)
-        // funct3=010
-        // ---------------------------
-        tv_instruction[7] = {7'b0000000,5'd2,5'd1,3'b010,5'd11,7'b0110011}; // SLT
-        tv_rs1_value[7] = -32'd5; // 0xFFFFFFFB
-        tv_rs2_value[7] = 32'd3;
-        tv_expected_result[7] = 32'd1; // true
-        tv_expected_flags[7]  = pack_flags(0,1,0,0);
-        tv_desc[7] = "SLT x11,x1,x2";
+    // wires that mem_stage will produce for WB
+    wire [31:0] alu_result_for_wb;
+    wire [31:0] load_wb_data;
+    wire [4:0]  rd_for_wb;
+    wire        wb_reg_file_in;
+    wire        memtoreg_in;
+    wire [31:0] pc_plus4_in;
+    wire        pc_to_reg_in;
 
-        // ---------------------------
-        // Test 8: SLTU x12,x1,x2 (unsigned less than)
-        // funct3=011
-        // ---------------------------
-        tv_instruction[8] = {7'b0000000,5'd2,5'd1,3'b011,5'd12,7'b0110011}; // SLTU
-        tv_rs1_value[8] = 32'hFFFF_FFFF; // large unsigned
-        tv_rs2_value[8] = 32'd1;
-        tv_expected_result[8] = 32'd0; // not less unsigned
-        tv_expected_flags[8]  = pack_flags(0,1,0,0);
-        tv_desc[8] = "SLTU x12,x1,x2";
+    // instantiate mem_wb_reg
+    mem_wb_reg mem_wb_reg_inst (
+        .clk(clk),
+        .rst(rst),
+        .en(1'b1), // you should gate this with mem_wb pipeline enable if you have one
+        .flush(1'b0),
 
-        // ---------------------------
-        // Test 9: ADDI x13, x1, imm (I-type)
-        // opcode=0010011, funct3=000
-        // imm = 5
-        // encoding: imm[11:0] rs1 funct3 rd opcode
-        // ---------------------------
-        tv_instruction[9] = {12'd5,5'd1,3'b000,5'd13,7'b0010011}; // ADDI x13,x1,5
-        tv_rs1_value[9] = 32'd7;
-        tv_rs2_value[9] = 32'd0; // unused
-        tv_expected_result[9] = 32'd12;
-        tv_expected_flags[9]  = pack_flags(0,0,0,0);
-        tv_desc[9] = "ADDI x13,x1,5";
+        .alu_result_for_wb(alu_result_for_wb),
+        .load_wb_data(load_wb_data),
+        .rd_for_wb(rd_for_wb),
+        .wb_reg_file_in(wb_reg_file_in),
+        .memtoreg_in(memtoreg_in),
 
-        // ---------------------------
-        // Test 10: XOR x14,x1,x2
-        // ---------------------------
-        tv_instruction[10] = {7'b0000000,5'd2,5'd1,3'b100,5'd14,7'b0110011}; // XOR
-        tv_rs1_value[10] = 32'hF0F0F0F0;
-        tv_rs2_value[10] = 32'h0F0F0F0F;
-        tv_expected_result[10] = 32'hFFFFFFFF;
-        tv_expected_flags[10] = pack_flags(0,1,0,0);
-        tv_desc[10] = "XOR x14,x1,x2";
+        .pc_plus4_in(pc_plus4_in),
+        .pc_to_reg_in(pc_to_reg_in),
 
-        // ---------------------------
-        // Test 11: ORI x15, x1, imm (I-type OR immediate)
-        // opcode=0010011? Actually ORI uses opcode 0010011 with funct3=110
-        // imm = 8
-        // ---------------------------
-        tv_instruction[11] = {12'd8,5'd1,3'b110,5'd15,7'b0010011}; // ORI x15,x1,8
-        tv_rs1_value[11] = 32'h10;
-        tv_expected_result[11] = 32'h18;
-        tv_expected_flags[11] = pack_flags(0,0,0,0);
-        tv_desc[11] = "ORI x15,x1,8";
+        .alu_result_wb(alu_result_wb),
+        .mem_load_data_wb(mem_load_data_wb),
+        .rd_wb(rd_wb),
+        .wb_reg_file_wb(wb_reg_file_wb),
+        .memtoreg_wb(memtoreg_wb),
 
-        // ---------------------------
-        // Test 12: ANDI x16, x1, imm
-        // ---------------------------
-        tv_instruction[12] = {12'hFFF,5'd1,3'b111,5'd16,7'b0010011}; // ANDI x16,x1,-1
-        tv_rs1_value[12] = 32'h12345678;
-        tv_expected_result[12] = 32'h12345678;
-        tv_expected_flags[12] = pack_flags(0,1,0,0);
-        tv_desc[12] = "ANDI x16,x1,-1";
+        .pc_plus4_wb(pc_plus4_wb),
+        .pc_to_reg_wb(pc_to_reg_wb)
+    );
 
-        // ---------------------------
-        // Test 13: SLLI x17, x1, shamt (I-type shift immediate)
-        // encoding: funct7=0000000, shamt in rs2 field for immediate forms
-        // For SLLI: opcode=0010011 funct3=001 imm[11:0]=shamt
-        // ---------------------------
-        tv_instruction[13] = {7'b0000000,5'd1,5'd1,3'b001,5'd17,7'b0010011}; // This is not exact I-type encoding in simple form, but we'll keep for variety
-        tv_rs1_value[13] = 32'd3;
-        tv_rs2_value[13] = 32'd0;
-        tv_expected_result[13] = 32'd3; // may not shift due to encoding - this acts as sanity
-        tv_expected_flags[13] = pack_flags(0,0,0,0);
-        tv_desc[13] = "SLLI x17,x1,shamt (sanity)";
+    // ---------------------------
+    // Finally: map the top-level outputs to wires
+    // ---------------------------
+    assign wb_result = data_forward_wb; // final value written back (this is convenient; your real WB stage produces this)
+    assign ex_result = ex_result_wire;
 
-        // ---------------------------
-        // Test 14: Edge case: ADD with overflow (signed)
-        // ADD x18,x1,x2 where values cause signed overflow
-        // ---------------------------
-        tv_instruction[14] = 32'h00209233; // ADD x4,x1,x2 (reuse format) - description will explain values
-        tv_rs1_value[14] = 32'h7FFFFFFF; // max positive
-        tv_rs2_value[14] = 32'd1;
-        tv_expected_result[14] = 32'h80000000; // wrap
-        tv_expected_flags[14] = pack_flags(0,1,0,1); // expect negative and overflow; adjust if your ALU flags differ
-        tv_desc[14] = "ADD overflow case";
+    // pc_en_out already driven by hazard_unit
+    //
+    //
+    //
+    //
+    // -------------------------------------------------------
+    // Writeback mux and top-level writeback connections
+    // -------------------------------------------------------
+    wire [31:0] wb_wr_data_w;
+    writeback_mux u_writeback_mux (
+        .alu_result_wb    (alu_result_wb),
+        .mem_load_data_wb (mem_load_data_wb),
+        .pc_plus4_wb      (pc_plus4_wb),
+        .memtoreg_wb      (memtoreg_wb),
+        .pc_to_reg_wb     (pc_to_reg_wb),
+        .wr_data          (wb_wr_data_w)
+    );
 
-    end // initial tv init
+    // Drive top_decode's writeback ports (it contains the register_file)
+    assign wb_wr_en   = wb_reg_file_wb;
+    assign wb_wr_addr = rd_wb;
+    assign wb_wr_data = wb_wr_data_w;
 
-    // Simple helper task: write register via wb interface (pulse write)
-    task write_reg;
-        input [4:0] addr;
-        input [31:0] data;
-        begin
-            @(negedge clk);
-            wb_wr_addr = addr;
-            wb_wr_data = data;
-            wb_wr_en = 1'b1;
-            @(negedge clk);
-            wb_wr_en = 1'b0;
-            wb_wr_addr = 5'b0;
-            wb_wr_data = 32'b0;
-        end
-    endtask
-
-    // Task to present and evaluate a single test vector
-    task run_test;
-        input integer idx;
-        reg [31:0] actual_result;
-        reg [3:0] actual_flags;
-        integer cycle_wait;
-        begin
-            $display("\n---- TEST %0d : %s ----", idx, tv_desc[idx]);
-
-            // Preload registers
-            if (tv_rs1_value[idx] !== 32'bx) begin
-                write_reg(5'd1, tv_rs1_value[idx]); // NOTE: here we always write to x1 (rs1 field used in vectors)
-            end
-
-            // If rs2 value is non-zero, write to x2
-            if (tv_rs2_value[idx] !== 32'b0) begin
-                write_reg(5'd2, tv_rs2_value[idx]);
-            end
-
-            // Apply instruction
-            @(negedge clk);
-            instruction_in = tv_instruction[idx];
-            @(negedge clk);
-            instruction_in = 32'b0; // clear after one cycle (optional)
-
-            // Wait pipeline to settle
-            for (cycle_wait = 0; cycle_wait < PIPELINE_WAIT_CYCLES; cycle_wait = cycle_wait + 1) begin
-                @(negedge clk);
-            end
-
-            // Capture actual results
-            actual_result = alu_result;
-            actual_flags = {zero_flag, negative_flag, carry_flag, overflow_flag};
-
-            // Compare with expected
-            if (actual_result === tv_expected_result[idx] && actual_flags === tv_expected_flags[idx]) begin
-                $display("PASS: %s", tv_desc[idx]);
-                $display("  Expected result=0x%08h (%0d), actual=0x%08h (%0d)", tv_expected_result[idx], tv_expected_result[idx], actual_result, actual_result);
-                $display("  Expected flags ZN C V = %b, actual = %b", tv_expected_flags[idx], actual_flags);
-                pass_count = pass_count + 1;
-            end
-            else begin
-                $display("FAIL: %s", tv_desc[idx]);
-                $display("  Expected result=0x%08h (%0d), actual=0x%08h (%0d)", tv_expected_result[idx], tv_expected_result[idx], actual_result, actual_result);
-                $display("  Expected flags ZN C V = %b, actual = %b", tv_expected_flags[idx], actual_flags);
-                fail_count = fail_count + 1;
-            end
-
-            // small gap
-            repeat (2) @(negedge clk);
-        end
-    endtask
-
-    // Test sequence
-    initial begin
-        $dumpfile("tb_cpu_top_all.vcd");
-        $dumpvars(0, tb_cpu_top_all);
-
-        // reset sequence
-        rst = 1; # (CLK_PERIOD * 4);
-        rst = 0;
-        @(negedge clk);
-
-        // Run through all tests
-        for (i = 0; i < NUM_TESTS; i = i + 1) begin
-            run_test(i);
-        end
-
-        // Summary
-        $display("\n================ TEST SUMMARY ================");
-        $display(" Total tests : %0d", NUM_TESTS);
-        $display(" Passed      : %0d", pass_count);
-        $display(" Failed      : %0d", fail_count);
-        $display("=============================================\n");
-
-        #100;
-        $finish;
-    end
 
 endmodule
-
-
-
 

@@ -48,7 +48,7 @@
 
 endmodule*/
 
-
+/*
 module execute_stage (
     // From ID/ID->EX pipeline (connected to id_ex_reg outputs)
     input  wire [31:0] pc_ex,             // pc_ex from id_ex_reg (optional, used for AUIPC/JAL)
@@ -143,8 +143,192 @@ module execute_stage (
         .update_btb    (update_btb_ex)
     );
 
-endmodule
+endmodule */
 
+// execute_stage.v
+// Execute stage with forwarding muxes, ALU control, ALU core and PC/jump calculation.
+// Ports follow the names used earlier in the top-level integration.
+
+module execute_stage (
+    // basic pipeline inputs
+    input  wire [31:0] pc,               // PC forwarded from ID/EX
+    input  wire [31:0] op1,              // ex_op1 (rs1 value forwarded from ID/EX)
+    input  wire [31:0] op2,              // ex_op2 (rs2 value forwarded from ID/EX)
+    input  wire        pipeline_flush,   // flush (bubble) control for EX stage
+
+    // instruction fields / control
+    input  wire [31:0] immediate,        // imm_ex
+    input  wire [6:0]  func7,
+    input  wire [2:0]  func3,
+    input  wire [6:0]  opcode,
+    input  wire        ex_alu_src,       // use immediate as operand2 when 1
+    input  wire        predictedTaken,   // branch predictor hint (not used here, but kept)
+    input  wire        invalid_inst,     // if set, treat as NOP
+    input  wire        ex_wb_reg_file,   // will write to regfile after EX
+    input  wire [4:0]  alu_rd_in,        // destination rd coming into EX (ID/EX->EX)
+
+    // forwarding controls and sources
+    input  wire [1:0]  operand_a_forward_cntl, // 00 original, 01 from MEM, 10 from WB
+    input  wire [1:0]  operand_b_forward_cntl,
+    input  wire [31:0] data_forward_mem,  // from EX/MEM (ALU result)
+    input  wire [31:0] data_forward_wb,   // from MEM/WB (final wb value)
+
+    // outputs
+    output reg  [31:0] result_alu,        // ALU result (to EX/MEM)
+    output reg         zero_flag,
+    output reg         negative_flag,
+    output reg         carry_flag,
+    output reg         overflow_flag,
+
+    // forwarded debug / pipeline outputs (selected operands)
+    output reg  [31:0] op1_selected,      // after forwarding selection
+    output reg  [31:0] op2_selected,      // after forwarding selection (before imm mux)
+    output reg  [31:0] op2_after_alu_src, // final operand2 fed to ALU (after imm mux)
+
+    // jump/branch outputs
+    output wire [31:0] pc_jump_addr,      // jump target computed
+    output wire        jump_en,           // true if branch/jump taken
+    output wire        update_btb,        // whether BTB should be updated
+    output wire [31:0] calc_jump_addr,    // branch target (same as pc_jump_addr)
+    // Writeback outputs
+    output wire [4:0]  wb_rd,             // destination index to write in EX/MEM
+    output wire        wb_reg_file        // will write to regfile (EX/MEM)
+);
+
+    // internal wires
+    wire [31:0] a_src;   // final ALU operand A
+    wire [31:0] b_src;   // final ALU operand B (after imm selection)
+    wire [3:0]  alu_ctrl;
+
+    // ALU flag wires (from arithmetic unit)
+    wire zf, nf, cf, of;
+
+    // ------------------------------------------------------------
+    // Forwarding selection (choose op1/op2 from EX/MEM or MEM/WB or original)
+    // ------------------------------------------------------------
+    always @(*) begin
+        // op1 selection priority: MEM -> WB -> original
+        case (operand_a_forward_cntl)
+            2'b01: op1_selected = data_forward_mem;
+            2'b10: op1_selected = data_forward_wb;
+            default: op1_selected = op1;
+        endcase
+
+        // op2 selection PRIOR to ALU-SRC mux
+        case (operand_b_forward_cntl)
+            2'b01: op2_selected = data_forward_mem;
+            2'b10: op2_selected = data_forward_wb;
+            default: op2_selected = op2;
+        endcase
+    end
+
+    // ------------------------------------------------------------
+    // ALU-src mux (choose immediate or forwarded rs2)
+    // ------------------------------------------------------------
+    always @(*) begin
+        if (ex_alu_src)
+            op2_after_alu_src = immediate;
+        else
+            op2_after_alu_src = op2_selected;
+    end
+
+    // ------------------------------------------------------------
+    // ALU control generation
+    // Use alu_control module (same as earlier)
+    // ------------------------------------------------------------
+    // instantiate alu_control (combinational)
+    wire [3:0] alu_ctrl_w;
+    alu_control u_alu_control (
+        .opcode  (opcode),
+        .funct3  (func3),
+        .funct7  (func7),
+        .alu_ctrl(alu_ctrl_w)
+    );
+
+    // ------------------------------------------------------------
+    // ALU core instantiation
+    // Use alu_top32 (which internally uses arithmetic, logic, shift, compare units)
+    // ------------------------------------------------------------
+    wire [31:0] alu_result_w;
+    wire        zf_w, nf_w, cf_w, of_w;
+
+    alu_top32 u_alu_top (
+        .rs1           (op1_selected),
+        .rs2           (op2_after_alu_src),
+        .alu_ctrl      (alu_ctrl_w),
+        .alu_result    (alu_result_w),
+        .zero_flag     (zf_w),
+        .negative_flag (nf_w),
+        .carry_flag    (cf_w),
+        .overflow_flag (of_w)
+    );
+
+    // ------------------------------------------------------------
+    // Handle invalid instruction or pipeline flush: treat as NOP
+    // If pipeline_flush or invalid_inst set, produce zeroed outputs and no writeback.
+    // ------------------------------------------------------------
+    always @(*) begin
+        if (pipeline_flush || invalid_inst) begin
+            result_alu      = 32'h00000000;
+            zero_flag       = 1'b0;
+            negative_flag   = 1'b0;
+            carry_flag      = 1'b0;
+            overflow_flag   = 1'b0;
+            // still drive operand selections for debug visibility
+            // keep op1_selected/op2_selected as chosen above
+            // final op2 after alu_src is already set above
+        end
+        else begin
+            result_alu      = alu_result_w;
+            zero_flag       = zf_w;
+            negative_flag   = nf_w;
+            carry_flag      = cf_w;
+            overflow_flag   = of_w;
+        end
+    end
+
+    // ------------------------------------------------------------
+    // PC / Jump calculation
+    // Use pc_jump module (combinational) that decides branch/jump taken and provides update PC
+    // pc_jump expects flags and opcode/func3 and returns update_pc/jump_addr/modify_pc/update_btb
+    // ------------------------------------------------------------
+    wire [31:0] update_pc_w;
+    wire [31:0] jump_addr_w;
+    wire        modify_pc_w;
+    wire        update_btb_w;
+
+    pc_jump u_pc_jump (
+        .pc             (pc),
+        .imm            (immediate),
+        .rs1            (op1_selected),
+        .opcode         (opcode),
+        .func3          (func3),
+        .carry_flag     (carry_flag),
+        .zero_flag      (zero_flag),
+        .negative_flag  (negative_flag),
+        .overflow_flag  (overflow_flag),
+        .predictedTaken (predictedTaken),
+
+        .update_pc      (update_pc_w),
+        .jump_addr      (jump_addr_w),
+        .modify_pc      (modify_pc_w),
+        .update_btb     (update_btb_w)
+    );
+
+    // expose jump outputs
+    assign pc_jump_addr = jump_addr_w;
+    assign jump_en      = (modify_pc_w) ? 1'b1 : 1'b0; // if modify_pc indicates a real change, indicate jump_en
+    assign update_btb   = update_btb_w;
+    assign calc_jump_addr = jump_addr_w;
+
+    // ------------------------------------------------------------
+    // Final writeback signals
+    // ------------------------------------------------------------
+    // Pass through destination rd and write-enable from ID/EX stage (these were inputs)
+    assign wb_rd       = alu_rd_in;
+    assign wb_reg_file = ex_wb_reg_file;
+
+endmodule
 
 
 

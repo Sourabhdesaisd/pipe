@@ -1,40 +1,40 @@
 module id_ex_reg(
-    input  wire        clk,
-    input  wire        rst,
-    input  wire        en,       // enable capture; tie 1 if no stall logic
-    input  wire        flush,    // when asserted, insert bubble (clear control signals)
+    input          clk,
+    input          rst,
+    input          en,       // enable capture; tie 1 if no stall logic
+    input          flush,    // when asserted, insert bubble (clear control signals)
 
-    // Optional PC from IF/ID (connect if available)
-    input  wire [31:0] pc_id,
+    // Opti PC from IF/ID (connect if available)
+    input   [31:0] pc_id,
     output reg  [31:0] pc_ex,
 
     // Instruction fields (from ID)
-    input  wire [6:0]  opcode,
-    input  wire [2:0]  func3,
-    input  wire [6:0]  func7,
-    input  wire [4:0]  rd,
-    input  wire [4:0]  rs1,
-    input  wire [4:0]  rs2,
-    input  wire [31:0] imm_out,
+    input   [6:0]  opcode,
+    input   [2:0]  func3,
+    input   [6:0]  func7,
+    input   [4:0]  rd,
+    input   [4:0]  rs1,
+    input   [4:0]  rs2,
+    input   [31:0] imm_out,
 
     // Register file read data (from ID)
-    input  wire [31:0] rs1_data,
-    input  wire [31:0] rs2_data,
+    input   [31:0] rs1_data,
+    input   [31:0] rs2_data,
 
-    // Control signals (from controller in ID)
-    input  wire        ex_alu_src,
-    input  wire        mem_write,
-    input  wire        mem_read,
-    input  wire [2:0]  mem_load_type,
-    input  wire [1:0]  mem_store_type,
-    input  wire        wb_reg_file,
-    input  wire        memtoreg,
-    input  wire        branch,
-    input  wire        jal,
-    input  wire        jalr,
-    input  wire        auipc,
-    input  wire        lui,
-    input  wire [3:0]  alu_ctrl,
+    // Contsignals (from controller in ID)
+    input          ex_alu_src,
+    input          mem_write,
+    input          mem_read,
+    input   [2:0]  mem_load_type,
+    input   [1:0]  mem_store_type,
+    input          wb_reg_file,
+    input          memtoreg,
+    input          branch,
+    input          jal,
+    input          jalr,
+    input          auipc,
+    input          lui,
+    input   [3:0]  alu_ctrl,
 
     // Outputs to EX stage (suffixed _ex)
     output reg  [6:0]  opcode_ex,

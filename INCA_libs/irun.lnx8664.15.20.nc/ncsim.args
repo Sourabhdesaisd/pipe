@@ -2,12 +2,11 @@
 // File created by:  irun
 // Do not modify this file
 //
-+rwc
 -MESSAGES
 +EMGRLOG
 irun.log
 -XLSTIME
-1554772003
+1554787575
 -XLKEEP
 -XLMODE
 ./INCA_libs/irun.lnx8664.15.20.nc

@@ -1,28 +1,37 @@
 irun(64): 15.20-s051: (c) Copyright 1995-2018 Cadence Design Systems, Inc.
-TOOL:	irun(64)	15.20-s051: Started on Apr 09, 2019 at 06:36:43 IST
+TOOL:	irun(64)	15.20-s051: Started on Apr 10, 2019 at 02:13:26 IST
 irun
-	-sv
-	+rwc
+	-access +rwc
 	-f compile.f
-		alu_ctrl.v
-		arithmetic.v
-		compare.v
-		top_alu.v
-		alu_mux.v
-		logical.v
-		shift.v
-		execute_top.v
 		decode_controller.v
+		if_id_stage.v
+		memory.v
+		pc.v
+		writeback_stage.v
+		alu_mux.v
 		decode_imm.v
+		id_ex_stage.v
+		mem_stage.v
 		register_file.v
+		arithmetic.v
+		alu_ctrl.v
+		execute_top.v
+		load.v
+		mem_top.v
+		shift.v
+		top_alu.v
+		compare.v
+		ex_mem_stage.v
+		inst_mem.v
+		logical.v
+		mem_wb_stage.v
+		store1.v
 		top_decode.v
+		fetch_top.v
+		pc_b_jump.v
+		update_pc.v
 		main_top.v
-		id_ex_pipe.v
-		main_top.v
-
-   User defined plus("+") options:
-	+rwc
-
+		main_tb.v
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
@@ -47,9 +56,15 @@ irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-Recompiling... reason: file './top_decode.v' is newer than expected.
-	expected: Tue Apr  9 04:26:37 2019
-	actual:   Tue Apr  9 06:33:57 2019
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+Recompiling... reason: file './writeback_stage.v' is newer than expected.
+	expected: Wed Apr 10 02:06:42 2019
+	actual:   Wed Apr 10 02:11:24 2019
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
@@ -62,21 +77,6 @@ ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-file: main_top.v
-	module worklib.tb_cpu_top_all:v
-		errors: 0, warnings: 0
-file: id_ex_pipe.v
-	module worklib.id_ex_pipeline:v
-		errors: 0, warnings: 0
-file: main_top.v
-module main_top (
-              |
-ncvlog: *W,RECOME (main_top.v,3|14): recompiling design unit worklib.main_top:v.
-	First compiled from line 3 of main_top.v.
-module tb_cpu_top_all;
-                    |
-ncvlog: *W,RECOME (main_top.v,171|20): recompiling design unit worklib.tb_cpu_top_all:v.
-	First compiled from line 171 of main_top.v.
 	Total errors/warnings found outside modules and primitives:
 		errors: 0, warnings: 2
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
@@ -99,139 +99,75 @@ DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 ncelab: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
 		Caching library 'worklib' ....... Done
 	Elaborating the design hierarchy:
-	Top level design units:
-		tb_cpu_top_all
-ncelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
-	Building instance overlay tables: .................... Done
-	Generating native compiled code:
-DEFINE gpdk045		$ANALOG/45nm/gpdk045		
-|
-ncvlog_cg: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
-DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
-|
-ncvlog_cg: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-		worklib.alu_top32:v <0x798bfc67>
-			streams:   1, words:   406
-		worklib.id_ex_pipeline:v <0x7b58fb5a>
-			streams:   3, words:  1894
-		worklib.tb_cpu_top_all:v <0x4f9f2fa5>
-			streams:  16, words: 26966
-	Building instance specific data structures.
-	Loading native compiled code:     .................... Done
-	Design hierarchy summary:
-		              Instances  Unique
-		Modules:             15      15
-		Registers:           71      71
-		Scalar wires:        43       -
-		Vectored wires:      44       -
-		Always blocks:       11      11
-		Initial blocks:      12      12
-		Cont. assignments:   11      50
-		Pseudo assignments:   1       1
-	Writing initial simulation snapshot: worklib.tb_cpu_top_all:v
-DEFINE gpdk045		$ANALOG/45nm/gpdk045		
-|
-ncsim: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
-DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
-|
-ncsim: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-Loading snapshot worklib.tb_cpu_top_all:v .................... Done
-ncsim: *W,DSEM2009: This SystemVerilog design is simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
-ncsim> source /tools/cadence/INCISIVE152/tools/inca/files/ncsimrc
-ncsim> run
-ncsim: *W,RMEMNOF: $readmem error: open failed on file "reg_mem.hex".
-            File: ./register_file.v, line = 19, pos = 40
-           Scope: tb_cpu_top_all.UCPU.u_top_decode.u_regfile
-            Time: 0 FS + 0
+		Caching library 'worklib' ....... Done
+ncelab: *W,DLLSVW: Unable to list the views of rfLib.rfLib (System error).
+ncelab: *W,DLLSVW: Unable to list the views of rfLib.log (System error).
+    forwarding_unit forwarding_unit_inst (
+                                       |
+ncelab: *E,CUVMUR (./main_top.v,612|39): instance 'rv32i_core.forwarding_unit_inst' of design unit 'forwarding_unit' is unresolved in 'worklib.rv32i_core:v'.
+    hazard_unit hazard_unit_inst (
+                               |
+ncelab: *E,CUVMUR (./main_top.v,632|31): instance 'rv32i_core.hazard_unit_inst' of design unit 'hazard_unit' is unresolved in 'worklib.rv32i_core:v'.
+    main_top dut (
+               |
+ncelab: *W,CUVWSP (./main_tb.v,9|15): 3 output ports were not connected:
+ncelab: (./main_top.v,12): wb_result
+ncelab: (./main_top.v,13): ex_result
+ncelab: (./main_top.v,14): pc_en_out
 
-ncsim: *W,DVEXACC: some objects excluded from $dumpvars due to access restrictions, use +access+r on command line for access to all objects.
-            File: ./main_top.v, line = 488, pos = 16
-           Scope: tb_cpu_top_all
-            Time: 0 FS + 0
-
-
----- TEST 0 :                     ADD x4,x1,x2 ----
-FAIL:                     ADD x4,x1,x2
-  Expected result=0x00000020 (32), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 1 :                     SUB x5,x3,x4 ----
-FAIL:                     SUB x5,x3,x4
-  Expected result=0x0000001e (30), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 2 :                     AND x6,x1,x2 ----
-FAIL:                     AND x6,x1,x2
-  Expected result=0x000000f0 (240), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 3 :                      OR x7,x1,x2 ----
-FAIL:                      OR x7,x1,x2
-  Expected result=0x00000f0f (3855), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 4 :                     SLL x8,x1,x2 ----
-FAIL:                     SLL x8,x1,x2
-  Expected result=0x00000008 (8), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 5 :                     SRL x9,x1,x2 ----
-FAIL:                     SRL x9,x1,x2
-  Expected result=0x40000000 (1073741824), actual=0x00000000 (0)
-  Expected flags ZN C V = 0100, actual = 1000
-
----- TEST 6 :                    SRA x10,x1,x2 ----
-FAIL:                    SRA x10,x1,x2
-  Expected result=0xc0000000 (3221225472), actual=0x00000000 (0)
-  Expected flags ZN C V = 0100, actual = 1000
-
----- TEST 7 :                    SLT x11,x1,x2 ----
-FAIL:                    SLT x11,x1,x2
-  Expected result=0x00000001 (1), actual=0x00000000 (0)
-  Expected flags ZN C V = 0100, actual = 1000
-
----- TEST 8 :                   SLTU x12,x1,x2 ----
-FAIL:                   SLTU x12,x1,x2
-  Expected result=0x00000000 (0), actual=0x00000000 (0)
-  Expected flags ZN C V = 0100, actual = 1000
-
----- TEST 9 :                    ADDI x13,x1,5 ----
-FAIL:                    ADDI x13,x1,5
-  Expected result=0x0000000c (12), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 10 :                    XOR x14,x1,x2 ----
-FAIL:                    XOR x14,x1,x2
-  Expected result=0xffffffff (4294967295), actual=0x00000000 (0)
-  Expected flags ZN C V = 0100, actual = 1000
-
----- TEST 11 :                     ORI x15,x1,8 ----
-FAIL:                     ORI x15,x1,8
-  Expected result=0x00000018 (24), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 12 :                   ANDI x16,x1,-1 ----
-FAIL:                   ANDI x16,x1,-1
-  Expected result=0x12345678 (305419896), actual=0x00000000 (0)
-  Expected flags ZN C V = 0100, actual = 1000
-
----- TEST 13 :       SLLI x17,x1,shamt (sanity) ----
-FAIL:       SLLI x17,x1,shamt (sanity)
-  Expected result=0x00000003 (3), actual=0x00000000 (0)
-  Expected flags ZN C V = 0000, actual = 1000
-
----- TEST 14 :                ADD overflow case ----
-FAIL:                ADD overflow case
-  Expected result=0x80000000 (2147483648), actual=0x00000000 (0)
-  Expected flags ZN C V = 0101, actual = 1000
-
-================ TEST SUMMARY ================
- Total tests : 15
- Passed      : 0
- Failed      : 15
-=============================================
-
-Simulation complete via $finish(1) at time 2160 NS + 0
-./main_top.v:508         $finish;
-ncsim> exit
-TOOL:	irun(64)	15.20-s051: Exiting on Apr 09, 2019 at 06:36:44 IST  (total: 00:00:01)
+        .pc_ex            (pc_ex),
+             |
+ncelab: *E,CUVPOM (./main_top.v,270|13): Port name 'pc_ex' is invalid or has multiple connections.
+        .rs1_data_ex      (rs1_data_ex),
+                   |
+ncelab: *E,CUVPOM (./main_top.v,271|19): Port name 'rs1_data_ex' is invalid or has multiple connections.
+        .rs2_data_ex      (rs2_data_ex),
+                   |
+ncelab: *E,CUVPOM (./main_top.v,272|19): Port name 'rs2_data_ex' is invalid or has multiple connections.
+        .imm_ex           (imm_ex),
+              |
+ncelab: *E,CUVPOM (./main_top.v,273|14): Port name 'imm_ex' is invalid or has multiple connections.
+        .ex_alu_src_ex    (ex_alu_src_ex),
+                     |
+ncelab: *E,CUVPOM (./main_top.v,274|21): Port name 'ex_alu_src_ex' is invalid or has multiple connections.
+        .opcode_ex        (opcode_ex),
+                 |
+ncelab: *E,CUVPOM (./main_top.v,275|17): Port name 'opcode_ex' is invalid or has multiple connections.
+        .func3_ex         (func3_ex),
+                |
+ncelab: *E,CUVPOM (./main_top.v,276|16): Port name 'func3_ex' is invalid or has multiple connections.
+        .func7_ex         (func7_ex),
+                |
+ncelab: *E,CUVPOM (./main_top.v,277|16): Port name 'func7_ex' is invalid or has multiple connections.
+        .predictedTaken_ex(predictedTaken_ex),
+                         |
+ncelab: *E,CUVPOM (./main_top.v,278|25): Port name 'predictedTaken_ex' is invalid or has multiple connections.
+        .alu_result_ex    (alu_result_ex),
+                     |
+ncelab: *E,CUVPOM (./main_top.v,280|21): Port name 'alu_result_ex' is invalid or has multiple connections.
+        .zero_flag_ex     (zero_flag_ex),
+                    |
+ncelab: *E,CUVPOM (./main_top.v,281|20): Port name 'zero_flag_ex' is invalid or has multiple connections.
+        .negative_flag_ex (negative_flag_ex),
+                        |
+ncelab: *E,CUVPOM (./main_top.v,282|24): Port name 'negative_flag_ex' is invalid or has multiple connections.
+        .carry_flag_ex    (carry_flag_ex),
+                     |
+ncelab: *E,CUVPOM (./main_top.v,283|21): Port name 'carry_flag_ex' is invalid or has multiple connections.
+        .overflow_flag_ex (overflow_flag_ex),
+                        |
+ncelab: *E,CUVPOM (./main_top.v,284|24): Port name 'overflow_flag_ex' is invalid or has multiple connections.
+        .jump_addr_ex     (jump_addr_ex),
+                    |
+ncelab: *E,CUVPOM (./main_top.v,286|20): Port name 'jump_addr_ex' is invalid or has multiple connections.
+        .update_pc_ex     (update_pc_ex),
+                    |
+ncelab: *E,CUVPOM (./main_top.v,287|20): Port name 'update_pc_ex' is invalid or has multiple connections.
+        .modify_pc_ex     (modify_pc_ex),
+                    |
+ncelab: *E,CUVPOM (./main_top.v,288|20): Port name 'modify_pc_ex' is invalid or has multiple connections.
+        .update_btb_ex    (update_btb_ex)
+                     |
+ncelab: *E,CUVPOM (./main_top.v,289|21): Port name 'update_btb_ex' is invalid or has multiple connections.
+irun: *E,ELBERR: Error during elaboration (status 1), exiting.
+TOOL:	irun(64)	15.20-s051: Exiting on Apr 10, 2019 at 02:13:32 IST  (total: 00:00:06)

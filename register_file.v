@@ -54,12 +54,12 @@ module register_file (
     output wire [31:0] rs2_data
 );
     reg [31:0] reg_file [0:31];
-
+      //  integer i;
+    
     initial begin
         // Optional: initialize registers from a file if present
-        // $readmemh("reg_mem.hex", reg_file);
-        integer i;
-        for (i = 0; i < 32; i = i + 1) reg_file[i] = 32'h00000000;
+        $readmemh("reg_mem.hex", reg_file);
+       // for (i = 0; i < 32; i = i + 1) reg_file[i] = 32'h00000000;
     end
 
     // Forwarding behavior: if a write happens to the same reg in the same cycle,
