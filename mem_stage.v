@@ -1,4 +1,7 @@
-// mem_stage.v
+// mem_stage.v  (corrected)
+// This mem_stage now instantiates data_mem_top (the top-level memory subsystem)
+// and passes outputs to MEM/WB register externally.
+
 module mem_stage (
     input  wire        clk,
     input  wire        rst,
@@ -44,25 +47,24 @@ module mem_stage (
     output wire        update_btb_out
 );
 
-    // Connect mem inputs to your data_memory_unit
-    wire [31:0] wb_data_from_mem; // wb_data output from data_memory_unit
+    // Internal wire: memory read result
+    wire [31:0] mem_read_data;
 
-    data_memory_unit u_data_mem (
-        .clk        (clk),
-        .mem_read   (mem_read_mem),
-        .mem_write  (mem_write_mem),
-        .store_type (mem_store_type_mem),
-        .load_type  (mem_load_type_mem),
-        .alu_result (alu_result_mem),
-        .rs2        (rs2_data_mem),
-        .memtoreg   (memtoreg_mem),
-        .wb_data    (wb_data_from_mem)
+    // Instantiate top-level memory subsystem
+    data_mem_top u_data_mem_top (
+        .clk       (clk),
+        .mem_read  (mem_read_mem),
+        .mem_write (mem_write_mem),
+        .load_type (mem_load_type_mem),
+        .store_type(mem_store_type_mem),
+        .addr      (alu_result_mem),
+        .rs2_data  (rs2_data_mem),
+        .read_data (mem_read_data)
     );
 
-    // Pass through to MEM/WB register (we'll instantiate mem_wb_reg below)
-    // For now wire outputs (mem_wb_reg will capture them)
+    // Pass through to MEM/WB register
     assign alu_result_for_wb = alu_result_mem;
-    assign load_wb_data      = wb_data_from_mem;
+    assign load_wb_data      = mem_read_data;
     assign rd_for_wb         = rd_mem;
     assign wb_reg_file_out   = wb_reg_file_mem;
     assign memtoreg_out      = memtoreg_mem;

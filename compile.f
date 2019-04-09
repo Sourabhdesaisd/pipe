@@ -31,7 +31,8 @@ pc_b_jump.v
 update_pc.v
 
       
-
+hazard.v 
+forward_unit.v
 main_top.v  
 main_tb.v
  

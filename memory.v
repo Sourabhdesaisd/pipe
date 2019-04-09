@@ -1,39 +1,40 @@
-// ---------------------------------------------------------
-// 1 KB MEMORY => 256 words (32-bit)
-// ---------------------------------------------------------
-module memory_1kb (
+module data_memory (
     input  wire        clk,
     input  wire        mem_read,
     input  wire        mem_write,
-
     input  wire [31:0] addr,          // byte address
-    input  wire [31:0] write_data,
-    input  wire [3:0]  byte_enable,
-    output reg  [31:0] read_data
+    input  wire [31:0] write_data,    // from store datapath
+    input  wire [3:0]  byte_enable,   // from store datapath
+    output reg  [31:0] mem_data_out   // to load datapath
 );
 
-    reg [31:0] mem [0:255];           // 256 words = 1 KB /// byte addresble madbeku word addreble edde  ask mem size 
+    reg [7:0] mem [0:1023]; // 1KB byte-addressable
 
-    wire [7:0] word_addr = addr[9:2]; // 4-byte aligned address
+    integer i;
+    initial begin
+        for(i=0;i<1024;i=i+1)
+            mem[i] = 8'b0; // avoid X in simulation
+    end
 
-    // -----------------------------------------------------
-    // WRITE operation (byte enabled)
-    // -----------------------------------------------------
+    // WRITE — Byte controlled
     always @(posedge clk) begin
-        if (mem_write) begin
-            if (byte_enable[0]) mem[word_addr][7:0]   <= write_data[7:0];
-            if (byte_enable[1]) mem[word_addr][15:8]  <= write_data[15:8];
-            if (byte_enable[2]) mem[word_addr][23:16] <= write_data[23:16];
-            if (byte_enable[3]) mem[word_addr][31:24] <= write_data[31:24];
+        if(mem_write) begin
+            if(byte_enable[0]) mem[addr]     <= write_data[7:0];
+            if(byte_enable[1]) mem[addr+1]   <= write_data[15:8];
+            if(byte_enable[2]) mem[addr+2]   <= write_data[23:16];
+            if(byte_enable[3]) mem[addr+3]   <= write_data[31:24];
         end
     end
 
-    // -----------------------------------------------------
-    // READ operation (combinational)
-    // -----------------------------------------------------
+    // READ — Form 32-bit word from 4 bytes
     always @(*) begin
-        read_data = mem_read ? mem[word_addr] : 32'b0;
+        mem_data_out =
+            mem_read ?
+            { mem[addr+3], mem[addr+2], mem[addr+1], mem[addr] } :
+            32'b0;
     end
 
 endmodule
+
+
 

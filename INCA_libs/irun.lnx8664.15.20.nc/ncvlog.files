@@ -29,5 +29,7 @@
 /home/vv2trainee8/Desktop/Sourabh/pipe/fetch_top.v
 /home/vv2trainee8/Desktop/Sourabh/pipe/pc_b_jump.v
 /home/vv2trainee8/Desktop/Sourabh/pipe/update_pc.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/hazard.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/forward_unit.v
 /home/vv2trainee8/Desktop/Sourabh/pipe/main_top.v
 /home/vv2trainee8/Desktop/Sourabh/pipe/main_tb.v

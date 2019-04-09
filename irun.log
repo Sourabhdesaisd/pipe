@@ -1,5 +1,5 @@
 irun(64): 15.20-s051: (c) Copyright 1995-2018 Cadence Design Systems, Inc.
-TOOL:	irun(64)	15.20-s051: Started on Apr 10, 2019 at 02:13:26 IST
+TOOL:	irun(64)	15.20-s051: Started on Apr 10, 2019 at 04:10:38 IST
 irun
 	-access +rwc
 	-f compile.f
@@ -30,6 +30,8 @@ irun
 		fetch_top.v
 		pc_b_jump.v
 		update_pc.v
+		hazard.v
+		forward_unit.v
 		main_top.v
 		main_tb.v
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
@@ -62,9 +64,9 @@ irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
-Recompiling... reason: file './writeback_stage.v' is newer than expected.
-	expected: Wed Apr 10 02:06:42 2019
-	actual:   Wed Apr 10 02:11:24 2019
+Recompiling... reason: file './memory.v' is newer than expected.
+	expected: Wed Apr 10 02:06:47 2019
+	actual:   Wed Apr 10 04:00:10 2019
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
@@ -77,6 +79,9 @@ ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied
 DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 |
 ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+file: main_top.v
+	module worklib.rv32i_core:v
+		errors: 0, warnings: 0
 	Total errors/warnings found outside modules and primitives:
 		errors: 0, warnings: 2
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
@@ -100,14 +105,6 @@ ncelab: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/ho
 		Caching library 'worklib' ....... Done
 	Elaborating the design hierarchy:
 		Caching library 'worklib' ....... Done
-ncelab: *W,DLLSVW: Unable to list the views of rfLib.rfLib (System error).
-ncelab: *W,DLLSVW: Unable to list the views of rfLib.log (System error).
-    forwarding_unit forwarding_unit_inst (
-                                       |
-ncelab: *E,CUVMUR (./main_top.v,612|39): instance 'rv32i_core.forwarding_unit_inst' of design unit 'forwarding_unit' is unresolved in 'worklib.rv32i_core:v'.
-    hazard_unit hazard_unit_inst (
-                               |
-ncelab: *E,CUVMUR (./main_top.v,632|31): instance 'rv32i_core.hazard_unit_inst' of design unit 'hazard_unit' is unresolved in 'worklib.rv32i_core:v'.
     main_top dut (
                |
 ncelab: *W,CUVWSP (./main_tb.v,9|15): 3 output ports were not connected:
@@ -115,59 +112,59 @@ ncelab: (./main_top.v,12): wb_result
 ncelab: (./main_top.v,13): ex_result
 ncelab: (./main_top.v,14): pc_en_out
 
-        .pc_ex            (pc_ex),
+        .opcode(opcode_id),
              |
 ncelab: *E,CUVPOM (./main_top.v,270|13): Port name 'pc_ex' is invalid or has multiple connections.
-        .rs1_data_ex      (rs1_data_ex),
+        .func3(func3_id),
                    |
 ncelab: *E,CUVPOM (./main_top.v,271|19): Port name 'rs1_data_ex' is invalid or has multiple connections.
-        .rs2_data_ex      (rs2_data_ex),
+        .func7(func7_id),
                    |
 ncelab: *E,CUVPOM (./main_top.v,272|19): Port name 'rs2_data_ex' is invalid or has multiple connections.
-        .imm_ex           (imm_ex),
+        .rd(rd_id),
               |
 ncelab: *E,CUVPOM (./main_top.v,273|14): Port name 'imm_ex' is invalid or has multiple connections.
-        .ex_alu_src_ex    (ex_alu_src_ex),
+        .rs1(rs1_id),
                      |
 ncelab: *E,CUVPOM (./main_top.v,274|21): Port name 'ex_alu_src_ex' is invalid or has multiple connections.
-        .opcode_ex        (opcode_ex),
+        .rs2(rs2_id),
                  |
 ncelab: *E,CUVPOM (./main_top.v,275|17): Port name 'opcode_ex' is invalid or has multiple connections.
-        .func3_ex         (func3_ex),
+        .imm_out(imm_id),
                 |
 ncelab: *E,CUVPOM (./main_top.v,276|16): Port name 'func3_ex' is invalid or has multiple connections.
-        .func7_ex         (func7_ex),
+
                 |
 ncelab: *E,CUVPOM (./main_top.v,277|16): Port name 'func7_ex' is invalid or has multiple connections.
-        .predictedTaken_ex(predictedTaken_ex),
+        .rs1_data(rs1_data_id),
                          |
 ncelab: *E,CUVPOM (./main_top.v,278|25): Port name 'predictedTaken_ex' is invalid or has multiple connections.
-        .alu_result_ex    (alu_result_ex),
+
                      |
 ncelab: *E,CUVPOM (./main_top.v,280|21): Port name 'alu_result_ex' is invalid or has multiple connections.
-        .zero_flag_ex     (zero_flag_ex),
+        .ex_alu_src(ex_alu_src_id),
                     |
 ncelab: *E,CUVPOM (./main_top.v,281|20): Port name 'zero_flag_ex' is invalid or has multiple connections.
-        .negative_flag_ex (negative_flag_ex),
+        .mem_write(mem_write_id),
                         |
 ncelab: *E,CUVPOM (./main_top.v,282|24): Port name 'negative_flag_ex' is invalid or has multiple connections.
-        .carry_flag_ex    (carry_flag_ex),
+        .mem_read(mem_read_id),
                      |
 ncelab: *E,CUVPOM (./main_top.v,283|21): Port name 'carry_flag_ex' is invalid or has multiple connections.
-        .overflow_flag_ex (overflow_flag_ex),
+        .mem_load_type(mem_load_type_id),
                         |
 ncelab: *E,CUVPOM (./main_top.v,284|24): Port name 'overflow_flag_ex' is invalid or has multiple connections.
-        .jump_addr_ex     (jump_addr_ex),
+        .wb_reg_file(wb_reg_file_id),
                     |
 ncelab: *E,CUVPOM (./main_top.v,286|20): Port name 'jump_addr_ex' is invalid or has multiple connections.
-        .update_pc_ex     (update_pc_ex),
+        .memtoreg(memtoreg_id),
                     |
 ncelab: *E,CUVPOM (./main_top.v,287|20): Port name 'update_pc_ex' is invalid or has multiple connections.
-        .modify_pc_ex     (modify_pc_ex),
+        .branch(branch_id),
                     |
 ncelab: *E,CUVPOM (./main_top.v,288|20): Port name 'modify_pc_ex' is invalid or has multiple connections.
-        .update_btb_ex    (update_btb_ex)
+        .jal(jal_id),
                      |
 ncelab: *E,CUVPOM (./main_top.v,289|21): Port name 'update_btb_ex' is invalid or has multiple connections.
 irun: *E,ELBERR: Error during elaboration (status 1), exiting.
-TOOL:	irun(64)	15.20-s051: Exiting on Apr 10, 2019 at 02:13:32 IST  (total: 00:00:06)
+TOOL:	irun(64)	15.20-s051: Exiting on Apr 10, 2019 at 04:10:38 IST  (total: 00:00:00)
