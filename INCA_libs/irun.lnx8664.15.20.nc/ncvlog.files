@@ -1,0 +1,19 @@
+//
+// File created by:  irun
+// Do not modify this file
+//
+/home/vv2trainee8/Desktop/Sourabh/pipe/alu_ctrl.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/arithmetic.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/compare.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/top_alu.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/alu_mux.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/logical.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/shift.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/execute_top.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/decode_controller.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/decode_imm.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/register_file.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/top_decode.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/main_top.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/id_ex_pipe.v
+/home/vv2trainee8/Desktop/Sourabh/pipe/main_top.v

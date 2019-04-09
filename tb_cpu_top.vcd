@@ -1,0 +1,79 @@
+$date
+    Apr  9, 2019  04:50:29
+$end
+$version
+    TOOL:	ncsim(64)	15.20-s051
+$end
+$timescale
+    1 ns
+$end
+
+$scope module tb_cpu_top $end
+
+$scope module UCPU $end
+$var wire     32 !    idex_rs1 [31:0] $end
+
+$scope module u_id_ex $end
+$var reg      32 "    rs1_out [31:0] $end
+$upscope $end
+
+
+$scope module u_execute $end
+$var wire     32 !    rs1 [31:0] $end
+$var wire     32 #    alu_src2 [31:0] $end
+
+$scope module u_mux $end
+$var wire     32 #    alu_imm_rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_alu $end
+$var wire     32 !    rs1 [31:0] $end
+$var wire     32 #    rs2 [31:0] $end
+
+$scope module u_arith $end
+$var wire     32 !    rs1 [31:0] $end
+$var wire     32 #    rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_logic $end
+$var wire     32 !    rs1 [31:0] $end
+$var wire     32 #    rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_shift $end
+$var wire     32 !    rs1 [31:0] $end
+$var wire     32 #    rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_cmp $end
+$var wire     32 !    rs_1 [31:0] $end
+$var wire     32 #    rs_2 [31:0] $end
+$upscope $end
+
+$upscope $end
+
+$upscope $end
+
+$upscope $end
+
+$upscope $end
+
+$enddefinitions $end
+$dumpvars
+b0 !
+b0 "
+b0 #
+$end
+#75
+b1010 "
+b1010 !
+b10110 #
+#85
+b0 "
+b0 !
+b0 #
+#200

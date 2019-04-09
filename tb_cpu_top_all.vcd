@@ -1,0 +1,197 @@
+$date
+    Apr  9, 2019  06:36:44
+$end
+$version
+    TOOL:	ncsim(64)	15.20-s051
+$end
+$timescale
+    1 ns
+$end
+
+$scope module tb_cpu_top_all $end
+$var parameter 32 !    CLK_PERIOD  $end
+$var parameter 32 "    PIPELINE_WAIT_CYCLES [31:0] $end
+$var parameter 32 #    NUM_TESTS [31:0] $end
+
+$scope module UCPU $end
+$var wire     32 $    idex_rs1 [31:0] $end
+
+$scope module u_id_ex $end
+$var reg      32 %    rs1_out [31:0] $end
+$upscope $end
+
+
+$scope module u_execute $end
+$var wire     32 $    rs1 [31:0] $end
+$var wire     32 &    alu_src2 [31:0] $end
+
+$scope module u_mux $end
+$var wire     32 &    alu_imm_rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_alu $end
+$var wire     32 $    rs1 [31:0] $end
+$var wire     32 &    rs2 [31:0] $end
+
+$scope module u_arith $end
+$var wire     32 $    rs1 [31:0] $end
+$var wire     32 &    rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_logic $end
+$var wire     32 $    rs1 [31:0] $end
+$var wire     32 &    rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_shift $end
+$var wire     32 $    rs1 [31:0] $end
+$var wire     32 &    rs2 [31:0] $end
+$upscope $end
+
+
+$scope module u_cmp $end
+$var wire     32 $    rs_1 [31:0] $end
+$var wire     32 &    rs_2 [31:0] $end
+$upscope $end
+
+$upscope $end
+
+$upscope $end
+
+$upscope $end
+
+$upscope $end
+
+$enddefinitions $end
+$dumpvars
+b1111 #
+b110 "
+b1010 !
+b0 $
+b0 %
+b0 &
+$end
+#95
+b1010 %
+b1010 $
+b10110 &
+#105
+b0 %
+b0 $
+b0 &
+#235
+bx %
+bx $
+bx &
+#245
+b0 %
+b0 $
+b0 &
+#375
+b1111000011110000 %
+b1111000011110000 $
+b111111110000 &
+#385
+b0 %
+b0 $
+b0 &
+#515
+b101000001010 %
+b101000001010 $
+b10100000101 &
+#525
+b0 %
+b0 $
+b0 &
+#655
+b1 %
+b1 $
+b11 &
+#665
+b0 %
+b0 $
+b0 &
+#795
+b10000000000000000000000000000000 %
+b10000000000000000000000000000000 $
+b1 &
+#805
+b0 %
+b0 $
+b0 &
+#935
+b10000000000000000000000000000000 %
+b10000000000000000000000000000000 $
+b1 &
+#945
+b0 %
+b0 $
+b0 &
+#1075
+b11111111111111111111111111111011 %
+b11111111111111111111111111111011 $
+b11 &
+#1085
+b0 %
+b0 $
+b0 &
+#1215
+b11111111111111111111111111111111 %
+b11111111111111111111111111111111 $
+b1 &
+#1225
+b0 %
+b0 $
+b0 &
+#1335
+b111 %
+b111 $
+b101 &
+#1345
+b0 %
+b0 $
+b0 &
+#1475
+b11110000111100001111000011110000 %
+b11110000111100001111000011110000 $
+b1111000011110000111100001111 &
+#1485
+b0 %
+b0 $
+b0 &
+#1595
+b10000 %
+b10000 $
+b1000 &
+#1605
+b0 %
+b0 $
+b0 &
+#1715
+b10010001101000101011001111000 %
+b10010001101000101011001111000 $
+b11111111111111111111111111111111 &
+#1725
+b0 %
+b0 $
+b0 &
+#1835
+b11 %
+b11 $
+b1 &
+#1845
+b0 %
+b0 $
+b0 &
+#1975
+b1111111111111111111111111111111 %
+b1111111111111111111111111111111 $
+b1 &
+#1985
+b0 %
+b0 $
+b0 &
+#2160

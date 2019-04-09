@@ -1,0 +1,32 @@
+//
+// File created by:  irun
+// Do not modify this file
+//
+-XLMODE
+./INCA_libs/irun.lnx8664.15.20.nc
+-RUNMODE
+-sv
+alu_ctrl.v
+arithmetic.v
+compare.v
+top_alu.v
+alu_mux.v
+logical.v
+shift.v
+execute_top.v
+decode_controller.v
+decode_imm.v
+register_file.v
+top_decode.v
+main_top.v
+id_ex_pipe.v
+main_top.v
+-CDSLIB
+./INCA_libs/irun.lnx8664.15.20.nc/cdsrun.lib
+-HDLVAR
+./INCA_libs/irun.lnx8664.15.20.nc/hdlrun.var
+-MESSAGES
+-UPDATE
+-XLLIBSTORE
+./INCA_libs/irun.lnx8664.15.20.nc/xllibs
+-ALLOWUNBOUND

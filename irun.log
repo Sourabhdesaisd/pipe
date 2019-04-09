@@ -1,0 +1,237 @@
+irun(64): 15.20-s051: (c) Copyright 1995-2018 Cadence Design Systems, Inc.
+TOOL:	irun(64)	15.20-s051: Started on Apr 09, 2019 at 06:36:43 IST
+irun
+	-sv
+	+rwc
+	-f compile.f
+		alu_ctrl.v
+		arithmetic.v
+		compare.v
+		top_alu.v
+		alu_mux.v
+		logical.v
+		shift.v
+		execute_top.v
+		decode_controller.v
+		decode_imm.v
+		register_file.v
+		top_decode.v
+		main_top.v
+		id_ex_pipe.v
+		main_top.v
+
+   User defined plus("+") options:
+	+rwc
+
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+Recompiling... reason: file './top_decode.v' is newer than expected.
+	expected: Tue Apr  9 04:26:37 2019
+	actual:   Tue Apr  9 06:33:57 2019
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+ncvlog: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+file: main_top.v
+	module worklib.tb_cpu_top_all:v
+		errors: 0, warnings: 0
+file: id_ex_pipe.v
+	module worklib.id_ex_pipeline:v
+		errors: 0, warnings: 0
+file: main_top.v
+module main_top (
+              |
+ncvlog: *W,RECOME (main_top.v,3|14): recompiling design unit worklib.main_top:v.
+	First compiled from line 3 of main_top.v.
+module tb_cpu_top_all;
+                    |
+ncvlog: *W,RECOME (main_top.v,171|20): recompiling design unit worklib.tb_cpu_top_all:v.
+	First compiled from line 171 of main_top.v.
+	Total errors/warnings found outside modules and primitives:
+		errors: 0, warnings: 2
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+ncelab: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+ncelab: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+		Caching library 'worklib' ....... Done
+	Elaborating the design hierarchy:
+	Top level design units:
+		tb_cpu_top_all
+ncelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+ncvlog_cg: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+ncvlog_cg: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+		worklib.alu_top32:v <0x798bfc67>
+			streams:   1, words:   406
+		worklib.id_ex_pipeline:v <0x7b58fb5a>
+			streams:   3, words:  1894
+		worklib.tb_cpu_top_all:v <0x4f9f2fa5>
+			streams:  16, words: 26966
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		              Instances  Unique
+		Modules:             15      15
+		Registers:           71      71
+		Scalar wires:        43       -
+		Vectored wires:      44       -
+		Always blocks:       11      11
+		Initial blocks:      12      12
+		Cont. assignments:   11      50
+		Pseudo assignments:   1       1
+	Writing initial simulation snapshot: worklib.tb_cpu_top_all:v
+DEFINE gpdk045		$ANALOG/45nm/gpdk045		
+|
+ncsim: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
+DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
+|
+ncsim: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
+Loading snapshot worklib.tb_cpu_top_all:v .................... Done
+ncsim: *W,DSEM2009: This SystemVerilog design is simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+ncsim> source /tools/cadence/INCISIVE152/tools/inca/files/ncsimrc
+ncsim> run
+ncsim: *W,RMEMNOF: $readmem error: open failed on file "reg_mem.hex".
+            File: ./register_file.v, line = 19, pos = 40
+           Scope: tb_cpu_top_all.UCPU.u_top_decode.u_regfile
+            Time: 0 FS + 0
+
+ncsim: *W,DVEXACC: some objects excluded from $dumpvars due to access restrictions, use +access+r on command line for access to all objects.
+            File: ./main_top.v, line = 488, pos = 16
+           Scope: tb_cpu_top_all
+            Time: 0 FS + 0
+
+
+---- TEST 0 :                     ADD x4,x1,x2 ----
+FAIL:                     ADD x4,x1,x2
+  Expected result=0x00000020 (32), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 1 :                     SUB x5,x3,x4 ----
+FAIL:                     SUB x5,x3,x4
+  Expected result=0x0000001e (30), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 2 :                     AND x6,x1,x2 ----
+FAIL:                     AND x6,x1,x2
+  Expected result=0x000000f0 (240), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 3 :                      OR x7,x1,x2 ----
+FAIL:                      OR x7,x1,x2
+  Expected result=0x00000f0f (3855), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 4 :                     SLL x8,x1,x2 ----
+FAIL:                     SLL x8,x1,x2
+  Expected result=0x00000008 (8), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 5 :                     SRL x9,x1,x2 ----
+FAIL:                     SRL x9,x1,x2
+  Expected result=0x40000000 (1073741824), actual=0x00000000 (0)
+  Expected flags ZN C V = 0100, actual = 1000
+
+---- TEST 6 :                    SRA x10,x1,x2 ----
+FAIL:                    SRA x10,x1,x2
+  Expected result=0xc0000000 (3221225472), actual=0x00000000 (0)
+  Expected flags ZN C V = 0100, actual = 1000
+
+---- TEST 7 :                    SLT x11,x1,x2 ----
+FAIL:                    SLT x11,x1,x2
+  Expected result=0x00000001 (1), actual=0x00000000 (0)
+  Expected flags ZN C V = 0100, actual = 1000
+
+---- TEST 8 :                   SLTU x12,x1,x2 ----
+FAIL:                   SLTU x12,x1,x2
+  Expected result=0x00000000 (0), actual=0x00000000 (0)
+  Expected flags ZN C V = 0100, actual = 1000
+
+---- TEST 9 :                    ADDI x13,x1,5 ----
+FAIL:                    ADDI x13,x1,5
+  Expected result=0x0000000c (12), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 10 :                    XOR x14,x1,x2 ----
+FAIL:                    XOR x14,x1,x2
+  Expected result=0xffffffff (4294967295), actual=0x00000000 (0)
+  Expected flags ZN C V = 0100, actual = 1000
+
+---- TEST 11 :                     ORI x15,x1,8 ----
+FAIL:                     ORI x15,x1,8
+  Expected result=0x00000018 (24), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 12 :                   ANDI x16,x1,-1 ----
+FAIL:                   ANDI x16,x1,-1
+  Expected result=0x12345678 (305419896), actual=0x00000000 (0)
+  Expected flags ZN C V = 0100, actual = 1000
+
+---- TEST 13 :       SLLI x17,x1,shamt (sanity) ----
+FAIL:       SLLI x17,x1,shamt (sanity)
+  Expected result=0x00000003 (3), actual=0x00000000 (0)
+  Expected flags ZN C V = 0000, actual = 1000
+
+---- TEST 14 :                ADD overflow case ----
+FAIL:                ADD overflow case
+  Expected result=0x80000000 (2147483648), actual=0x00000000 (0)
+  Expected flags ZN C V = 0101, actual = 1000
+
+================ TEST SUMMARY ================
+ Total tests : 15
+ Passed      : 0
+ Failed      : 15
+=============================================
+
+Simulation complete via $finish(1) at time 2160 NS + 0
+./main_top.v:508         $finish;
+ncsim> exit
+TOOL:	irun(64)	15.20-s051: Exiting on Apr 09, 2019 at 06:36:44 IST  (total: 00:00:01)

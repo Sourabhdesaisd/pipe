@@ -1,0 +1,14 @@
+//
+// File created by:  irun
+// Do not modify this file
+
+s1::(09Apr2019:04:44:07):( irun -sv +rwc -f compile.f )
+s2::(09Apr2019:04:45:11):( irun -sv +rwc -f compile.f )
+s3::(09Apr2019:04:46:41):( irun -sv +rwc -f compile.f )
+s4::(09Apr2019:04:47:08):( irun -sv +rwc -f compile.f )
+s5::(09Apr2019:04:49:36):( irun -access +rwc alu_ctrl.v alu_mux.v arithmetic.v compare.v decode_controller.v decode_imm.v top_decode.v execute_top.v )
+s6::(09Apr2019:04:50:28):( irun -sv +rwc -f compile.f )
+s7::(09Apr2019:06:29:00):( irun -sv +rwc -f compile.f )
+s8::(09Apr2019:06:34:54):( irun -sv +rwc -f compile.f )
+s9::(09Apr2019:06:36:29):( irun -sv +rwc -f compile.f )
+s10::(09Apr2019:06:36:43):( irun -sv +rwc -f compile.f )

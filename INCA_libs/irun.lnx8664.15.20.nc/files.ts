@@ -1,0 +1,15 @@
+1550330792 /home/vv2trainee8/cds.lib
+1554765397 /home/vv2trainee8/Desktop/Sourabh/pipe/alu_ctrl.v
+1554764289 /home/vv2trainee8/Desktop/Sourabh/pipe/arithmetic.v
+1554764289 /home/vv2trainee8/Desktop/Sourabh/pipe/compare.v
+1554764410 /home/vv2trainee8/Desktop/Sourabh/pipe/top_alu.v
+1554764289 /home/vv2trainee8/Desktop/Sourabh/pipe/alu_mux.v
+1554764289 /home/vv2trainee8/Desktop/Sourabh/pipe/logical.v
+1554764289 /home/vv2trainee8/Desktop/Sourabh/pipe/shift.v
+1554765069 /home/vv2trainee8/Desktop/Sourabh/pipe/execute_top.v
+1554764161 /home/vv2trainee8/Desktop/Sourabh/pipe/decode_controller.v
+1554764161 /home/vv2trainee8/Desktop/Sourabh/pipe/decode_imm.v
+1554764161 /home/vv2trainee8/Desktop/Sourabh/pipe/register_file.v
+1554771837 /home/vv2trainee8/Desktop/Sourabh/pipe/top_decode.v
+1554764515 /home/vv2trainee8/Desktop/Sourabh/pipe/id_ex_pipe.v
+1554772001 /home/vv2trainee8/Desktop/Sourabh/pipe/main_top.v
