@@ -1,5 +1,5 @@
 irun(64): 15.20-s051: (c) Copyright 1995-2018 Cadence Design Systems, Inc.
-TOOL:	irun(64)	15.20-s051: Started on Apr 10, 2019 at 04:10:38 IST
+TOOL:	irun(64)	15.20-s051: Started on Apr 10, 2019 at 06:25:17 IST
 irun
 	-access +rwc
 	-f compile.f
@@ -66,7 +66,7 @@ DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
 Recompiling... reason: file './memory.v' is newer than expected.
 	expected: Wed Apr 10 02:06:47 2019
-	actual:   Wed Apr 10 04:00:10 2019
+	actual:   Wed Apr 10 06:22:55 2019
 DEFINE gpdk045		$ANALOG/45nm/gpdk045		
 |
 irun: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,15): cds.lib Permission denied '/tools/cadence/FOUNDRY/analog/45nm/gpdk045' (cds.lib command ignored).
@@ -104,6 +104,32 @@ DEFINE rfLib_new	/home/install/FOUNDRY/rfLib_new
 ncelab: *W,DLCPTH (/tools/cadence/FOUNDRY/cds.lib,19): cds.lib Invalid path '/home/install/FOUNDRY/rfLib_new' (cds.lib command ignored).
 		Caching library 'worklib' ....... Done
 	Elaborating the design hierarchy:
+    id_ex_reg id_ex_reg_inst (
+                           |
+ncelab: *W,CUVWSP (./main_top.v,261|27): 22 output ports were not connected:
+ncelab: (./id_ex_stage.v,40): opcode_ex
+ncelab: (./id_ex_stage.v,41): func3_ex
+ncelab: (./id_ex_stage.v,42): func7_ex
+ncelab: (./id_ex_stage.v,43): rd_ex
+ncelab: (./id_ex_stage.v,44): rs1_ex
+ncelab: (./id_ex_stage.v,45): rs2_ex
+ncelab: (./id_ex_stage.v,46): imm_ex
+ncelab: (./id_ex_stage.v,48): rs1_data_ex
+ncelab: (./id_ex_stage.v,49): rs2_data_ex
+ncelab: (./id_ex_stage.v,51): ex_alu_src_ex
+ncelab: (./id_ex_stage.v,52): mem_write_ex
+ncelab: (./id_ex_stage.v,53): mem_read_ex
+ncelab: (./id_ex_stage.v,54): mem_load_type_ex
+ncelab: (./id_ex_stage.v,55): mem_store_type_ex
+ncelab: (./id_ex_stage.v,56): wb_reg_file_ex
+ncelab: (./id_ex_stage.v,57): memtoreg_ex
+ncelab: (./id_ex_stage.v,58): branch_ex
+ncelab: (./id_ex_stage.v,59): jal_ex
+ncelab: (./id_ex_stage.v,60): jalr_ex
+ncelab: (./id_ex_stage.v,61): auipc_ex
+ncelab: (./id_ex_stage.v,62): lui_ex
+ncelab: (./id_ex_stage.v,63): alu_ctrl_ex
+
 		Caching library 'worklib' ....... Done
     main_top dut (
                |
@@ -167,4 +193,4 @@ ncelab: *E,CUVPOM (./main_top.v,288|20): Port name 'modify_pc_ex' is invalid or 
                      |
 ncelab: *E,CUVPOM (./main_top.v,289|21): Port name 'update_btb_ex' is invalid or has multiple connections.
 irun: *E,ELBERR: Error during elaboration (status 1), exiting.
-TOOL:	irun(64)	15.20-s051: Exiting on Apr 10, 2019 at 04:10:38 IST  (total: 00:00:00)
+TOOL:	irun(64)	15.20-s051: Exiting on Apr 10, 2019 at 06:25:18 IST  (total: 00:00:01)

@@ -1,0 +1,149 @@
+                      |
+ncelab: *E,CUVMUR (./fetch.v,251|23): instance 'cpu_top.if_stage_u@if_stage_complex_btb<module>.u_btb@btb<module>.lru_reg_inst' of design unit 'lru_reg' is unresolved in 'worklib.btb:v'.
+    lru_next lru_next_inst(
+                         |
+ncelab: *E,CUVMUR (./fetch.v,292|25): instance 'cpu_top.if_stage_u@if_stage_complex_btb<module>.u_btb@btb<module>.lru_next_inst' of design unit 'lru_next' is unresolved in 'worklib.btb:v'.
+    register_file u_regfile (
+                          |
+ncelab: *E,CUVMUR (./decode.v,241|26): instance 'cpu_top.decode_u@top_decode<module>.u_regfile' of design unit 'register_file' is unresolved in 'worklib.top_decode:v'.
+        .pc(pc_ex),
+          |
+ncelab: *E,CUVPOM (./top.v,325|10): Port name 'pc' is invalid or has multiple connections.
+        .op1(rs1_data_ex),
+           |
+ncelab: *E,CUVPOM (./top.v,326|11): Port name 'op1' is invalid or has multiple connections.
+        .op2(rs2_data_ex),
+           |
+ncelab: *E,CUVPOM (./top.v,327|11): Port name 'op2' is invalid or has multiple connections.
+        .pipeline_flush(id_ex_flush),
+                      |
+ncelab: *E,CUVPOM (./top.v,328|22): Port name 'pipeline_flush' is invalid or has multiple connections.
+        .immediate(imm_ex),
+                 |
+ncelab: *E,CUVPOM (./top.v,330|17): Port name 'immediate' is invalid or has multiple connections.
+        .func7(func7_ex),
+             |
+ncelab: *E,CUVPOM (./top.v,331|13): Port name 'func7' is invalid or has multiple connections.
+        .func3(func3_ex),
+             |
+ncelab: *E,CUVPOM (./top.v,332|13): Port name 'func3' is invalid or has multiple connections.
+        .opcode(opcode_ex),
+              |
+ncelab: *E,CUVPOM (./top.v,333|14): Port name 'opcode' is invalid or has multiple connections.
+        .ex_alu_src(ex_alu_src_ex),
+                  |
+ncelab: *E,CUVPOM (./top.v,334|18): Port name 'ex_alu_src' is invalid or has multiple connections.
+        .predictedTaken(predictedTaken_ex),
+                      |
+ncelab: *E,CUVPOM (./top.v,335|22): Port name 'predictedTaken' is invalid or has multiple connections.
+        .invalid_inst(1'b0),
+                    |
+ncelab: *E,CUVPOM (./top.v,336|20): Port name 'invalid_inst' is invalid or has multiple connections.
+        .ex_wb_reg_file(wb_reg_file_ex),
+                      |
+ncelab: *E,CUVPOM (./top.v,337|22): Port name 'ex_wb_reg_file' is invalid or has multiple connections.
+        .alu_rd_in(rd_ex),
+                 |
+ncelab: *E,CUVPOM (./top.v,338|17): Port name 'alu_rd_in' is invalid or has multiple connections.
+        .result_alu(alu_result_ex),
+                  |
+ncelab: *E,CUVPOM (./top.v,345|18): Port name 'result_alu' is invalid or has multiple connections.
+        .zero_flag(zero_flag_ex),
+                 |
+ncelab: *E,CUVPOM (./top.v,346|17): Port name 'zero_flag' is invalid or has multiple connections.
+        .negative_flag(negative_flag_ex),
+                     |
+ncelab: *E,CUVPOM (./top.v,347|21): Port name 'negative_flag' is invalid or has multiple connections.
+        .carry_flag(carry_flag_ex),
+                  |
+ncelab: *E,CUVPOM (./top.v,348|18): Port name 'carry_flag' is invalid or has multiple connections.
+        .overflow_flag(overflow_flag_ex),
+                     |
+ncelab: *E,CUVPOM (./top.v,349|21): Port name 'overflow_flag' is invalid or has multiple connections.
+        .op1_selected(op1_selected_ex),
+                    |
+ncelab: *E,CUVPOM (./top.v,351|20): Port name 'op1_selected' is invalid or has multiple connections.
+        .op2_selected(op2_selected_ex),
+                    |
+ncelab: *E,CUVPOM (./top.v,352|20): Port name 'op2_selected' is invalid or has multiple connections.
+        .op2_after_alu_src(op2_after_alu_src_ex),
+                         |
+ncelab: *E,CUVPOM (./top.v,353|25): Port name 'op2_after_alu_src' is invalid or has multiple connections.
+        .pc_jump_addr(),     // not used directly here
+                    |
+ncelab: *E,CUVPOM (./top.v,355|20): Port name 'pc_jump_addr' is invalid or has multiple connections.
+        .jump_en(),
+               |
+ncelab: *E,CUVPOM (./top.v,356|15): Port name 'jump_en' is invalid or has multiple connections.
+        .update_btb(),
+                  |
+ncelab: *E,CUVPOM (./top.v,357|18): Port name 'update_btb' is invalid or has multiple connections.
+        .calc_jump_addr(),
+                      |
+ncelab: *E,CUVPOM (./top.v,358|22): Port name 'calc_jump_addr' is invalid or has multiple connections.
+        .wb_rd(), 
+             |
+ncelab: *E,CUVPOM (./top.v,360|13): Port name 'wb_rd' is invalid or has multiple connections.
+        .wb_reg_file()
+                   |
+ncelab: *E,CUVPOM (./top.v,361|19): Port name 'wb_reg_file' is invalid or has multiple connections.
+    logical_unit32 u_logic (
+                         |
+ncelab: *E,CUVMUR (./execute.v,259|25): instance 'cpu_top.ex_u@execute_stage<module>.u_alu_top@alu_top32<module>.u_logic' of design unit 'logical_unit32' is unresolved in 'worklib.alu_top32:v'.
+        .zero_flag_mem(1'b0),
+                     |
+ncelab: *E,CUVPOM (./top.v,473|21): Port name 'zero_flag_mem' is invalid or has multiple connections.
+        .negative_flag_mem(1'b0),
+                         |
+ncelab: *E,CUVPOM (./top.v,474|25): Port name 'negative_flag_mem' is invalid or has multiple connections.
+        .carry_flag_mem(1'b0),
+                      |
+ncelab: *E,CUVPOM (./top.v,475|22): Port name 'carry_flag_mem' is invalid or has multiple connections.
+        .overflow_flag_mem(1'b0),
+                         |
+ncelab: *E,CUVPOM (./top.v,476|25): Port name 'overflow_flag_mem' is invalid or has multiple connections.
+        .branch_mem(branch_mem),
+                  |
+ncelab: *E,CUVPOM (./top.v,488|18): Port name 'branch_mem' is invalid or has multiple connections.
+        .jal_mem(jal_mem),
+               |
+ncelab: *E,CUVPOM (./top.v,489|15): Port name 'jal_mem' is invalid or has multiple connections.
+        .jalr_mem(jalr_mem),
+                |
+ncelab: *E,CUVPOM (./top.v,490|16): Port name 'jalr_mem' is invalid or has multiple connections.
+    load_datapath u_load (
+                       |
+ncelab: *E,CUVMUR (./mem.v,212|23): instance 'cpu_top.mem_u@mem_stage<module>.u_datamem@data_mem_top<module>.u_load' of design unit 'load_datapath' is unresolved in 'worklib.data_mem_top:v'.
+        .alu_result_for_wb(alu_result_for_wb),
+                         |
+ncelab: *E,CUVPOM (./top.v,525|25): Port name 'alu_result_for_wb' is invalid or has multiple connections.
+        .load_wb_data(load_wb_data),
+                    |
+ncelab: *E,CUVPOM (./top.v,526|20): Port name 'load_wb_data' is invalid or has multiple connections.
+        .rd_for_wb(rd_for_wb),
+                 |
+ncelab: *E,CUVPOM (./top.v,527|17): Port name 'rd_for_wb' is invalid or has multiple connections.
+        .wb_reg_file_in(wb_reg_file_out),
+                      |
+ncelab: *E,CUVPOM (./top.v,528|22): Port name 'wb_reg_file_in' is invalid or has multiple connections.
+        .memtoreg_in(memtoreg_out),
+                   |
+ncelab: *E,CUVPOM (./top.v,529|19): Port name 'memtoreg_in' is invalid or has multiple connections.
+        .pc_plus4_in(32'h0),
+                   |
+ncelab: *E,CUVPOM (./top.v,531|19): Port name 'pc_plus4_in' is invalid or has multiple connections.
+        .pc_to_reg_in(1'b0),
+                    |
+ncelab: *E,CUVPOM (./top.v,532|20): Port name 'pc_to_reg_in' is invalid or has multiple connections.
+        .mem_load_data_wb(mem_load_data_wb),
+                        |
+ncelab: *E,CUVPOM (./top.v,535|24): Port name 'mem_load_data_wb' is invalid or has multiple connections.
+        .pc_plus4_wb(pc_plus4_wb),
+                   |
+ncelab: *E,CUVPOM (./top.v,540|19): Port name 'pc_plus4_wb' is invalid or has multiple connections.
+        .pc_to_reg_wb(pc_to_reg_wb)
+                    |
+ncelab: *E,CUVPOM (./top.v,541|20): Port name 'pc_to_reg_wb' is invalid or has multiple connections.
+irun: *E,ELBERR: Error during elaboration (status 1), exiting.
+[vv2trainee8@compute-srv2 new]$ 
+

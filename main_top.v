@@ -290,9 +290,9 @@ module rv32i_core(
         .jalr(jalr_id),
         .auipc(auipc_id),
         .lui(lui_id),
-        .alu_ctrl(alu_ctrl_id),
+        .alu_ctrl(alu_ctrl_id) //,
 
-        // outputs to EX
+       /* // outputs to EX
         .opcode_ex(opcode_ex),
         .func3_ex(func3_ex),
         .func7_ex(func7_ex),
@@ -316,7 +316,7 @@ module rv32i_core(
         .jalr_ex(jalr_ex),
         .auipc_ex(auipc_ex),
         .lui_ex(lui_ex),
-        .alu_ctrl_ex(alu_ctrl_ex)
+        .alu_ctrl_ex(alu_ctrl_ex)*/
     );
 
     // ------------------------------------------------------------------
